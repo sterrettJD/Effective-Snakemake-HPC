@@ -1,0 +1,15 @@
+---
+title: "Snakemake Essentials"
+---
+
+# Rules
+
+## What is "rule all"?
+
+## Examples
+
+# Wildcards
+
+## Examples
+
+# Running Snakemake

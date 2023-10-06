@@ -1,0 +1,11 @@
+---
+title: "Effective use of Snakemake for workflow management on high performance compute clusters"
+---
+
+This is a learning resource.
+
+```{snakemake}
+rule all:
+    input:
+        "endpoint.txt"
+```
