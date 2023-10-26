@@ -1,0 +1,18 @@
+# We'll use a list, but you can also read these in from a file
+sample_ids = ["sample_1", "sample_2"]
+
+rule all:
+    input:
+        expand("test_{sample}.txt",
+               sample=sample_ids)
+
+
+rule make_test:
+    output:
+        "test_{sample}.txt"
+    shell:
+        """
+        echo "this is the file for {wildcards.sample}" > {output}
+        # for sample_1, this will run
+        # echo "this is the file for sample_1" > test_sample_1.txt
+        """
