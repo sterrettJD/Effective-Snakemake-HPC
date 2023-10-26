@@ -1,0 +1,14 @@
+rule all:
+    input:
+        "test.txt"
+
+
+rule make_test:
+    output:
+        "test.txt"
+    shell:
+        """
+        echo "this is file 1" > {output}
+        # This is the same as
+        # echo "this is file 1" > test.txt
+        """
