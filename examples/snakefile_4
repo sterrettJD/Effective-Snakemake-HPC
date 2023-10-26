@@ -1,0 +1,49 @@
+# We'll use a list, but you can also read these in from a file
+sample_ids = ["sample_1", "sample_2"]
+
+rule all:
+    input:
+        expand("test_{sample}.txt",
+               sample=sample_ids),
+        "concatenated_files.txt"
+        
+
+
+rule make_test:
+    output:
+        "test_{sample}.txt"
+    shell:
+        """
+        echo "this is the file for {wildcards.sample}" > {output}
+        # for sample_1, this will run
+        # echo "this is the file for sample_1" > test_sample_1.txt
+        """
+
+rule update_punctuation:
+    input:
+        "test_{sample}.txt"
+    output:
+        "punctuated_test_{sample}.txt"
+    shell:
+        """
+        cat {input} > {output}
+        echo -n "." >> {output}
+        # sed -i '$ s/$/./' file.txt
+        """
+
+rule concatenate_files:
+    input:
+        UNPUNCTUATED=expand("test_{sample}.txt",
+                            sample=sample_ids),
+        PUNCTUATED=expand("punctuated_test_{sample}.txt",
+                            sample=sample_ids)
+    output:
+        "concatenated_files.txt"
+    shell:
+        """
+        echo "Before punctuation:" > concatenated_files.txt
+        cat {input.UNPUNCTUATED} >> concatenated_files.txt
+        
+        echo "After punctuation:" >> concatenated_files.txt
+        cat {input.PUNCTUATED} >> concatenated_files.txt
+        """
