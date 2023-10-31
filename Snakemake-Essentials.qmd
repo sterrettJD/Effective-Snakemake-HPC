@@ -2,9 +2,53 @@
 title: "Snakemake Essentials"
 ---
 
+# What does Snakemake do?
+
 # Rules
 
+Snakefiles are structured in rules. Each step in your pipeline is a rule. For example, if you want to run the following 3 steps:
+1. Trim fastq files
+2. Run fastQC
+3. Aggregate fastQC reports using multiQC
+
+And the main focus is the multiQC report file at the end, your snakefile should look like this:
+
+```snakemake
+
+rule all:
+    input:
+        "multiQC_report.html"
+
+rule trim_fastq:
+    ...
+
+rule run_fastQC:
+    ...
+
+rule run_multiQC:
+    ...
+
+```
+
 ## What is "rule all"?
+At this point, you may be asking "Wait! You said I should have a rule for each step! What's this `rule all` mess??"
+
+`rule all` is how we specify the output files we want. We specify our target files using the input to `rule all`. In a scientific case, consider these the input to the paper you'll write from your analysis. 
+
+Snakemake is tracking what rules need to be run in order to generate the inputs for other rules, so it will track that 
+- `rule run_multiQC`'s outputs -> `rule all`'s inputs 
+- `rule run_fastQC`'s outputs -> `rule run_multiQC`'s inputs 
+- `rule trim_fastq`'s outputs -> `rule run_fastQC`'s inputs 
+
+Therefore, it knows that in order to have the final files, it will use `rule trim_fastq` -> `rule run_fastQC` -> `rule run_multiQC` -> `rule all`
+
+```{mermaid}
+flowchart LR
+  C[run_multiQC] --> D(all)
+  B[run_fastQC] --> C[run_multiQC]
+  A[trim_fastq] --> B[run_fastQC]
+  
+```
 
 ## Examples
 
