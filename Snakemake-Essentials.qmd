@@ -4,8 +4,19 @@ title: "Snakemake Essentials"
 
 # What does Snakemake do?
 
-# Rules
 
+# How do I get myself one of these snakemakers? (Installation)
+Installation instructions can be found on the Snakemake documentation page [here](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html). In short, you want to install `conda` and `mamba-forge`, then run:
+
+```
+mamba create -c conda-forge -c bioconda -n snakemake_env snakemake
+```
+
+# Running Snakemake
+The installation command above creates a conda environment with Snakemake accessible. Any time you want to use Snakemake, run `conda activate snakemake_env` to activate that environment, then you can run the command `snakemake`. Try running `snakemake -h` to view the help options and make sure you have it installed.
+
+
+# Rules
 Snakefiles are structured in rules. Each step in your pipeline is a rule. For example, if you want to run the following 3 steps:
 1. Trim fastq files
 2. Run fastQC
