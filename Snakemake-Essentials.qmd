@@ -59,10 +59,89 @@ flowchart LR
   
 ```
 
-## Examples
+## Structure of rules
+Rules provide crucial information to Snakemake, such as a step's inputs, output, and the command to run. These are the bare bones of each rule, but as we develop more, we will start to also include aspects of each rule, including the Conda environment, resource requirements (time and memory), and other parameters. 
+
+```snakemake
+rule do_things:
+    input:
+        "input_file"
+    output:
+        "output_file"
+    shell:
+        """
+        # do things to input file to make ouput file
+        """
+```
+
+Instead of `shell:`, users can also use `run:` which will run Python code.
+
+```snakemake
+rule do_things:
+    input:
+        "input_file"
+    output:
+        "output_file"
+    run:
+        # python things ...
+```
+
+## Inputs and outputs
+Snakemake traces the inputs and outputs for each rule to know what rules need to be run (and what order to run them in). These are specified very explicitly in the rule, using `input:` and `output:`, followed by and indented, comma-separated list, with one entry per line. These can also be named in the list. Another great attribute of snakemake is that these can be referenced in the command it runs.
+
+### Examples
+#### 1 input, 1 output
+```snakemake
+rule rename_file:
+    input:
+        "old_name.txt"
+    output:
+        "new_name.txt"
+    shell:
+        """
+        mv {input} {output}
+        # same as running
+        # mv old_name.txt new_name.txt
+        """
+```
+
+#### 2 named inputs, 2 named outputs
+```snakemake
+rule rename_multiple_files:
+    input:
+        file_1="first_file.txt",
+        file_2="second_file.txt"
+    output:
+        file_1="file_1.txt",
+        file_2="file_2.txt"
+    shell:
+        """
+        mv {input.file_1} {output.file_1}
+        mv {input.file_2} {output.file_2}
+        """
+```
+
+## Example with trimming reads
+Imagine you want to trim one fastq file (10 base pairs from the beginning, 5 base pairs from the end) using SeqTK. This is what a very simple snakefile could look like:
+```snakemake
+rule all:
+    input:
+        "trimmed_reads.fq"
+
+rule trim_fastq:
+    input:
+        "raw_reads.fq"
+    output:
+        "trimmed_reads.fq"
+    shell:
+        """
+        seqtk trimfq -b 10 -e 5 {input} > {output}
+        """
+```
+(We will build on this example)
+
 
 # Wildcards
 
-## Examples
 
-# Running Snakemake
+## Examples
