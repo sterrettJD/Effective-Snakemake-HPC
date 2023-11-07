@@ -25,7 +25,7 @@
     "href": "index.html",
     "title": "Effective use of Snakemake for workflow management on high performance compute clusters",
     "section": "",
-    "text": "This is a learning resource.\nrule all:\n    input:\n        \"endpoint.txt\""
+    "text": "Overview\nWelcome! This is a learning resource on how to effectively use the workflow management tool Snakemake to make your life easier when processing large amounts of data on high performance compute clusters.\n\n\nGoals\nHopefully, this resource will help you:\n\nUnderstand why workflow management tools are useful\nCreate generalizable workflows with Snakemake\nCreate reproducible workflows with Snakemake\nCreate Snakemake workflows that run on compute clusters in an efficient manner (parallelized job submission and resource management)\n\n\n\nApplications to shotgun metagenomics\nSome examples will be focused on dealing with high-throughput sequencing data, such as metagenomics, since this is what I (and the original audience of this resource) work with on a daily basis. However, the contents and principles still apply to other data types.\nA primer on shotgun metagenomic data:\n\nThe Fastq format is how we store sequencing data. It’s a (sometimes compressed) text file with the genome sequence and quality of the sequence.\nIf any of these concepts are unfamiliar to your, or if they spark an interest in working with metagenomic data:\n\nThomas Sharpton has written An introduction to the analysis of shotgun metagenomic data, which is a nice overview of many data processing steps.\nAdditionally, the Metagenomics Wiki explains many of the tools, as well as how to use them."
   },
   {
     "objectID": "Snakemake-Essentials.html",

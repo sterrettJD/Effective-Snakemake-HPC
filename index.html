@@ -105,7 +105,15 @@ ul.task-list li input[type="checkbox"] {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#goals" id="toc-goals" class="nav-link" data-scroll-target="#goals">Goals</a></li>
+  <li><a href="#applications-to-shotgun-metagenomics" id="toc-applications-to-shotgun-metagenomics" class="nav-link" data-scroll-target="#applications-to-shotgun-metagenomics">Applications to shotgun metagenomics</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -127,12 +135,35 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<p>This is a learning resource.</p>
-<pre class="{snakemake}"><code>rule all:
-    input:
-        "endpoint.txt"</code></pre>
+<section id="overview" class="level1">
+<h1>Overview</h1>
+<p>Welcome! This is a learning resource on how to effectively use the workflow management tool Snakemake to make your life easier when processing large amounts of data on high performance compute clusters.</p>
+</section>
+<section id="goals" class="level1">
+<h1>Goals</h1>
+<p>Hopefully, this resource will help you:</p>
+<ol type="1">
+<li>Understand why workflow management tools are useful</li>
+<li>Create generalizable workflows with Snakemake</li>
+<li>Create reproducible workflows with Snakemake</li>
+<li>Create Snakemake workflows that run on compute clusters in an efficient manner (parallelized job submission and resource management)</li>
+</ol>
+</section>
+<section id="applications-to-shotgun-metagenomics" class="level1">
+<h1>Applications to shotgun metagenomics</h1>
+<p>Some examples will be focused on dealing with high-throughput sequencing data, such as metagenomics, since this is what I (and the original audience of this resource) work with on a daily basis. However, the contents and principles still apply to other data types.</p>
+<p>A primer on shotgun metagenomic data:</p>
+<ul>
+<li>The <a href="https://en.wikipedia.org/wiki/FASTQ_format">Fastq format</a> is how we store sequencing data. It’s a (sometimes compressed) text file with the genome sequence and quality of the sequence.</li>
+<li>If any of these concepts are unfamiliar to your, or if they spark an interest in working with metagenomic data:
+<ul>
+<li>Thomas Sharpton has written <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4059276/">An introduction to the analysis of shotgun metagenomic data</a>, which is a nice overview of many data processing steps.</li>
+<li>Additionally, the <a href="https://www.metagenomics.wiki/tools/short-read">Metagenomics Wiki</a> explains many of the tools, as well as how to use them.</li>
+</ul></li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
