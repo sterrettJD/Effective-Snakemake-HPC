@@ -42,11 +42,25 @@
     "text": "What is “rule all”?\nAt this point, you may be asking “Wait! You said I should have a rule for each step! What’s this rule all mess??”\nrule all is how we specify the output files we want. We specify our target files using the input to rule all. In a scientific case, consider these the input to the paper you’ll write from your analysis.\nSnakemake is tracking what rules need to be run in order to generate the inputs for other rules, so it will track that - rule run_multiQC’s outputs -&gt; rule all’s inputs - rule run_fastQC’s outputs -&gt; rule run_multiQC’s inputs - rule trim_fastq’s outputs -&gt; rule run_fastQC’s inputs\nTherefore, it knows that in order to have the final files, it will use rule trim_fastq -&gt; rule run_fastQC -&gt; rule run_multiQC -&gt; rule all\n\n\n\n\nflowchart LR\n  C[run_multiQC] --&gt; D(all)\n  B[run_fastQC] --&gt; C[run_multiQC]\n  A[trim_fastq] --&gt; B[run_fastQC]"
   },
   {
-    "objectID": "Snakemake-Essentials.html#examples",
-    "href": "Snakemake-Essentials.html#examples",
+    "objectID": "Snakemake-Essentials.html#structure-of-rules",
+    "href": "Snakemake-Essentials.html#structure-of-rules",
     "title": "Snakemake Essentials",
-    "section": "Examples",
-    "text": "Examples"
+    "section": "Structure of rules",
+    "text": "Structure of rules\nRules provide crucial information to Snakemake, such as a step’s inputs, output, and the command to run. These are the bare bones of each rule, but as we develop more, we will start to also include aspects of each rule, including the Conda environment, resource requirements (time and memory), and other parameters.\nrule do_things:\n    input:\n        \"input_file\"\n    output:\n        \"output_file\"\n    shell:\n        \"\"\"\n        # do things to input file to make ouput file\n        \"\"\"\nInstead of shell:, users can also use run: which will run Python code.\nrule do_things:\n    input:\n        \"input_file\"\n    output:\n        \"output_file\"\n    run:\n        # python things ..."
+  },
+  {
+    "objectID": "Snakemake-Essentials.html#inputs-and-outputs",
+    "href": "Snakemake-Essentials.html#inputs-and-outputs",
+    "title": "Snakemake Essentials",
+    "section": "Inputs and outputs",
+    "text": "Inputs and outputs\nSnakemake traces the inputs and outputs for each rule to know what rules need to be run (and what order to run them in). These are specified very explicitly in the rule, using input: and output:, followed by and indented, comma-separated list, with one entry per line. These can also be named in the list. Another great attribute of snakemake is that these can be referenced in the command it runs.\n\nExamples\n\n1 input, 1 output\nrule rename_file:\n    input:\n        \"old_name.txt\"\n    output:\n        \"new_name.txt\"\n    shell:\n        \"\"\"\n        mv {input} {output}\n        # same as running\n        # mv old_name.txt new_name.txt\n        \"\"\"\n\n\n2 named inputs, 2 named outputs\nrule rename_multiple_files:\n    input:\n        file_1=\"first_file.txt\",\n        file_2=\"second_file.txt\"\n    output:\n        file_1=\"file_1.txt\",\n        file_2=\"file_2.txt\"\n    shell:\n        \"\"\"\n        mv {input.file_1} {output.file_1}\n        mv {input.file_2} {output.file_2}\n        \"\"\""
+  },
+  {
+    "objectID": "Snakemake-Essentials.html#example-with-trimming-reads",
+    "href": "Snakemake-Essentials.html#example-with-trimming-reads",
+    "title": "Snakemake Essentials",
+    "section": "Example with trimming reads",
+    "text": "Example with trimming reads\nImagine you want to trim one fastq file (10 base pairs from the beginning, 5 base pairs from the end) using SeqTK. This is what a very simple snakefile could look like:\nrule all:\n    input:\n        \"trimmed_reads.fq\"\n\nrule trim_fastq:\n    input:\n        \"raw_reads.fq\"\n    output:\n        \"trimmed_reads.fq\"\n    shell:\n        \"\"\"\n        seqtk trimfq -b 10 -e 5 {input} &gt; {output}\n        \"\"\"\n(We will build on this example)"
   },
   {
     "objectID": "Snakemake-Essentials.html#examples-1",

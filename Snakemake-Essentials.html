@@ -117,13 +117,17 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#rules" id="toc-rules" class="nav-link" data-scroll-target="#rules">Rules</a>
   <ul class="collapse">
   <li><a href="#what-is-rule-all" id="toc-what-is-rule-all" class="nav-link" data-scroll-target="#what-is-rule-all">What is “rule all”?</a></li>
+  <li><a href="#structure-of-rules" id="toc-structure-of-rules" class="nav-link" data-scroll-target="#structure-of-rules">Structure of rules</a></li>
+  <li><a href="#inputs-and-outputs" id="toc-inputs-and-outputs" class="nav-link" data-scroll-target="#inputs-and-outputs">Inputs and outputs</a>
+  <ul class="collapse">
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  </ul></li>
+  <li><a href="#example-with-trimming-reads" id="toc-example-with-trimming-reads" class="nav-link" data-scroll-target="#example-with-trimming-reads">Example with trimming reads</a></li>
   </ul></li>
   <li><a href="#wildcards" id="toc-wildcards" class="nav-link" data-scroll-target="#wildcards">Wildcards</a>
   <ul class="collapse">
   <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
   </ul></li>
-  <li><a href="#running-snakemake-1" id="toc-running-snakemake-1" class="nav-link" data-scroll-target="#running-snakemake-1">Running Snakemake</a></li>
   </ul>
 </nav>
     </div>
@@ -200,20 +204,89 @@ rule run_multiQC:
 </div>
 </div>
 </section>
-<section id="examples" class="level2">
-<h2 class="anchored" data-anchor-id="examples">Examples</h2>
+<section id="structure-of-rules" class="level2">
+<h2 class="anchored" data-anchor-id="structure-of-rules">Structure of rules</h2>
+<p>Rules provide crucial information to Snakemake, such as a step’s inputs, output, and the command to run. These are the bare bones of each rule, but as we develop more, we will start to also include aspects of each rule, including the Conda environment, resource requirements (time and memory), and other parameters.</p>
+<pre class="snakemake"><code>rule do_things:
+    input:
+        "input_file"
+    output:
+        "output_file"
+    shell:
+        """
+        # do things to input file to make ouput file
+        """</code></pre>
+<p>Instead of <code>shell:</code>, users can also use <code>run:</code> which will run Python code.</p>
+<pre class="snakemake"><code>rule do_things:
+    input:
+        "input_file"
+    output:
+        "output_file"
+    run:
+        # python things ...</code></pre>
+</section>
+<section id="inputs-and-outputs" class="level2">
+<h2 class="anchored" data-anchor-id="inputs-and-outputs">Inputs and outputs</h2>
+<p>Snakemake traces the inputs and outputs for each rule to know what rules need to be run (and what order to run them in). These are specified very explicitly in the rule, using <code>input:</code> and <code>output:</code>, followed by and indented, comma-separated list, with one entry per line. These can also be named in the list. Another great attribute of snakemake is that these can be referenced in the command it runs.</p>
+<section id="examples" class="level3">
+<h3 class="anchored" data-anchor-id="examples">Examples</h3>
+<section id="input-1-output" class="level4">
+<h4 class="anchored" data-anchor-id="input-1-output">1 input, 1 output</h4>
+<pre class="snakemake"><code>rule rename_file:
+    input:
+        "old_name.txt"
+    output:
+        "new_name.txt"
+    shell:
+        """
+        mv {input} {output}
+        # same as running
+        # mv old_name.txt new_name.txt
+        """</code></pre>
+</section>
+<section id="named-inputs-2-named-outputs" class="level4">
+<h4 class="anchored" data-anchor-id="named-inputs-2-named-outputs">2 named inputs, 2 named outputs</h4>
+<pre class="snakemake"><code>rule rename_multiple_files:
+    input:
+        file_1="first_file.txt",
+        file_2="second_file.txt"
+    output:
+        file_1="file_1.txt",
+        file_2="file_2.txt"
+    shell:
+        """
+        mv {input.file_1} {output.file_1}
+        mv {input.file_2} {output.file_2}
+        """</code></pre>
+</section>
+</section>
+</section>
+<section id="example-with-trimming-reads" class="level2">
+<h2 class="anchored" data-anchor-id="example-with-trimming-reads">Example with trimming reads</h2>
+<p>Imagine you want to trim one fastq file (10 base pairs from the beginning, 5 base pairs from the end) using SeqTK. This is what a very simple snakefile could look like:</p>
+<pre class="snakemake"><code>rule all:
+    input:
+        "trimmed_reads.fq"
+
+rule trim_fastq:
+    input:
+        "raw_reads.fq"
+    output:
+        "trimmed_reads.fq"
+    shell:
+        """
+        seqtk trimfq -b 10 -e 5 {input} &gt; {output}
+        """</code></pre>
+<p>(We will build on this example)</p>
 </section>
 </section>
 <section id="wildcards" class="level1">
 <h1>Wildcards</h1>
 <section id="examples-1" class="level2">
 <h2 class="anchored" data-anchor-id="examples-1">Examples</h2>
-</section>
-</section>
-<section id="running-snakemake-1" class="level1">
-<h1>Running Snakemake</h1>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
