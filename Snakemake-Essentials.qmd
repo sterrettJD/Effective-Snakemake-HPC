@@ -9,6 +9,14 @@ Installation instructions can be found on the Snakemake documentation page [here
 mamba create -c conda-forge -c bioconda -n snakemake_env snakemake
 ```
 
+Alternatively, if you want to install Snakemake in an environment you already have set up, first activate that environment, then run:
+
+```
+pip install snakemake
+```
+
+This is especially important if you will be using more than one conda environment in your pipeline. 
+
 # Running Snakemake
 The installation command above creates a conda environment with Snakemake accessible. Any time you want to use Snakemake, run `conda activate snakemake_env` to activate that environment, then you can run the command `snakemake`. Try running `snakemake -h` to view the help options and make sure you have it installed.
 
@@ -42,7 +50,7 @@ rule run_multiQC:
 ## What is "rule all"?
 At this point, you may be asking "Wait! You said I should have a rule for each step! What's this `rule all` mess??"
 
-`rule all` is how we specify the output files we want. We specify our target files using the input to `rule all`. In a scientific case, consider these the input to the paper you'll write from your analysis. 
+`rule all` is how we specify the output files we want and its located at the top of your snakefile. We specify our target files using the input to `rule all` since Snakemake will automatically start at the rule at the top of your snakefile. In a scientific case, consider these the input to the paper you'll write from your analysis. 
 
 Snakemake is tracking what rules need to be run in order to generate the inputs for other rules, so it will track that 
 - `rule run_multiQC`'s outputs -> `rule all`'s inputs 
@@ -68,6 +76,10 @@ rule do_things:
         "input_file"
     output:
         "output_file"
+    conda:
+        "environment.yml"
+        # or 
+        "name_of_already_installed_environment"
     shell:
         """
         # do things to input file to make ouput file
@@ -87,7 +99,7 @@ rule do_things:
 ```
 
 ## Inputs and outputs
-Snakemake traces the inputs and outputs for each rule to know what rules need to be run (and what order to run them in). These are specified very explicitly in the rule, using `input:` and `output:`, followed by and indented, comma-separated list, with one entry per line. These can also be named in the list. Another great attribute of snakemake is that these can be referenced in the command it runs.
+Snakemake traces the inputs and outputs for each rule to know what rules need to be run (and what order to run them in). These are specified very explicitly in the rule, using `input:` and `output:`, followed by an indented, comma-separated list, with one entry per line. These can also be named in the list. Another great attribute of Snakemake is that these can be referenced in the command it runs.
 
 ### Examples
 #### 1 input, 1 output

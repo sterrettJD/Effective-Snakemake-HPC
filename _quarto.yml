@@ -9,6 +9,7 @@ website:
         text: Home
       - About-Snakemake.qmd
       - Snakemake-Essentials.qmd
+      - Qiime2-Applications.qmd
 
 
 format:

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.361">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Effective-Snakemake-HPC - Snakemake Essentials</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Effective-Snakemake-HPC</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./About-Snakemake.html" rel="" target="">
+ <span class="menu-text">About Snakemake</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./Snakemake-Essentials.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Snakemake Essentials</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#how-do-i-get-myself-one-of-these-snakemakers-installation" id="toc-how-do-i-get-myself-one-of-these-snakemakers-installation" class="nav-link active" data-scroll-target="#how-do-i-get-myself-one-of-these-snakemakers-installation">How do I get myself one of these snakemakers? (Installation)</a></li>
+  <li><a href="#running-snakemake" id="toc-running-snakemake" class="nav-link" data-scroll-target="#running-snakemake">Running Snakemake</a></li>
+  <li><a href="#rules" id="toc-rules" class="nav-link" data-scroll-target="#rules">Rules</a>
+  <ul class="collapse">
+  <li><a href="#what-is-rule-all" id="toc-what-is-rule-all" class="nav-link" data-scroll-target="#what-is-rule-all">What is “rule all”?</a></li>
+  <li><a href="#structure-of-rules" id="toc-structure-of-rules" class="nav-link" data-scroll-target="#structure-of-rules">Structure of rules</a></li>
+  <li><a href="#inputs-and-outputs" id="toc-inputs-and-outputs" class="nav-link" data-scroll-target="#inputs-and-outputs">Inputs and outputs</a>
+  <ul class="collapse">
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  </ul></li>
+  <li><a href="#example-with-trimming-reads" id="toc-example-with-trimming-reads" class="nav-link" data-scroll-target="#example-with-trimming-reads">Example with trimming reads</a></li>
+  </ul></li>
+  <li><a href="#wildcards" id="toc-wildcards" class="nav-link" data-scroll-target="#wildcards">Wildcards</a>
+  <ul class="collapse">
+  <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Snakemake Essentials</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="how-do-i-get-myself-one-of-these-snakemakers-installation" class="level1">
+<h1>How do I get myself one of these snakemakers? (Installation)</h1>
+<p>Installation instructions can be found on the Snakemake documentation page <a href="https://snakemake.readthedocs.io/en/stable/getting_started/installation.html">here</a>. In short, you want to install <code>conda</code> and <code>mamba-forge</code>, then run:</p>
+<pre><code>mamba create -c conda-forge -c bioconda -n snakemake_env snakemake</code></pre>
+<p>Alternatively, if you want to install Snakemake in an environment you already have set up, first activate that environment, then run:</p>
+<pre><code>pip install snakemake</code></pre>
+<p>This is especially important if you will be using more than one conda environment in your pipeline.</p>
+</section>
+<section id="running-snakemake" class="level1">
+<h1>Running Snakemake</h1>
+<p>The installation command above creates a conda environment with Snakemake accessible. Any time you want to use Snakemake, run <code>conda activate snakemake_env</code> to activate that environment, then you can run the command <code>snakemake</code>. Try running <code>snakemake -h</code> to view the help options and make sure you have it installed.</p>
+</section>
+<section id="rules" class="level1">
+<h1>Rules</h1>
+<p>Snakefiles are structured in rules. Each step in your pipeline is a rule. For example, if you want to run the following 3 steps:</p>
+<ol type="1">
+<li>Trim fastq files</li>
+<li>Run fastQC</li>
+<li>Aggregate fastQC reports using multiQC</li>
+</ol>
+<p>And the main focus is the multiQC report file at the end, your snakefile should look like this:</p>
+<pre class="snakemake"><code>
+rule all:
+    input:
+        "multiQC_report.html"
+
+rule trim_fastq:
+    ...
+
+rule run_fastQC:
+    ...
+
+rule run_multiQC:
+    ...
+</code></pre>
+<section id="what-is-rule-all" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-rule-all">What is “rule all”?</h2>
+<p>At this point, you may be asking “Wait! You said I should have a rule for each step! What’s this <code>rule all</code> mess??”</p>
+<p><code>rule all</code> is how we specify the output files we want and its located at the top of your snakefile. We specify our target files using the input to <code>rule all</code> since Snakemake will automatically start at the rule at the top of your snakefile. In a scientific case, consider these the input to the paper you’ll write from your analysis.</p>
+<p>Snakemake is tracking what rules need to be run in order to generate the inputs for other rules, so it will track that - <code>rule run_multiQC</code>’s outputs -&gt; <code>rule all</code>’s inputs - <code>rule run_fastQC</code>’s outputs -&gt; <code>rule run_multiQC</code>’s inputs - <code>rule trim_fastq</code>’s outputs -&gt; <code>rule run_fastQC</code>’s inputs</p>
+<p>Therefore, it knows that in order to have the final files, it will use <code>rule trim_fastq</code> -&gt; <code>rule run_fastQC</code> -&gt; <code>rule run_multiQC</code> -&gt; <code>rule all</code></p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  C[run_multiQC] --&gt; D(all)
+  B[run_fastQC] --&gt; C[run_multiQC]
+  A[trim_fastq] --&gt; B[run_fastQC]
+  
+</pre>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="structure-of-rules" class="level2">
+<h2 class="anchored" data-anchor-id="structure-of-rules">Structure of rules</h2>
+<p>Rules provide crucial information to Snakemake, such as a step’s inputs, output, and the command to run. These are the bare bones of each rule, but as we develop more, we will start to also include aspects of each rule, including the Conda environment, resource requirements (time and memory), and other parameters.</p>
+<pre class="snakemake"><code>rule do_things:
+    input:
+        "input_file"
+    output:
+        "output_file"
+    conda:
+        "environment.yml"
+        # or 
+        "name_of_already_installed_environment"
+    shell:
+        """
+        # do things to input file to make ouput file
+        """</code></pre>
+<p>Instead of <code>shell:</code>, users can also use <code>run:</code> which will run Python code.</p>
+<pre class="snakemake"><code>rule do_things:
+    input:
+        "input_file"
+    output:
+        "output_file"
+    run:
+        # python things ...</code></pre>
+</section>
+<section id="inputs-and-outputs" class="level2">
+<h2 class="anchored" data-anchor-id="inputs-and-outputs">Inputs and outputs</h2>
+<p>Snakemake traces the inputs and outputs for each rule to know what rules need to be run (and what order to run them in). These are specified very explicitly in the rule, using <code>input:</code> and <code>output:</code>, followed by an indented, comma-separated list, with one entry per line. These can also be named in the list. Another great attribute of Snakemake is that these can be referenced in the command it runs.</p>
+<section id="examples" class="level3">
+<h3 class="anchored" data-anchor-id="examples">Examples</h3>
+<section id="input-1-output" class="level4">
+<h4 class="anchored" data-anchor-id="input-1-output">1 input, 1 output</h4>
+<pre class="snakemake"><code>rule rename_file:
+    input:
+        "old_name.txt"
+    output:
+        "new_name.txt"
+    shell:
+        """
+        mv {input} {output}
+        # same as running
+        # mv old_name.txt new_name.txt
+        """</code></pre>
+</section>
+<section id="named-inputs-2-named-outputs" class="level4">
+<h4 class="anchored" data-anchor-id="named-inputs-2-named-outputs">2 named inputs, 2 named outputs</h4>
+<pre class="snakemake"><code>rule rename_multiple_files:
+    input:
+        file_1="first_file.txt",
+        file_2="second_file.txt"
+    output:
+        file_1="file_1.txt",
+        file_2="file_2.txt"
+    shell:
+        """
+        mv {input.file_1} {output.file_1}
+        mv {input.file_2} {output.file_2}
+        """</code></pre>
+</section>
+</section>
+</section>
+<section id="example-with-trimming-reads" class="level2">
+<h2 class="anchored" data-anchor-id="example-with-trimming-reads">Example with trimming reads</h2>
+<p>Imagine you want to trim one fastq file (10 base pairs from the beginning, 5 base pairs from the end) using SeqTK. This is what a very simple snakefile could look like:</p>
+<pre class="snakemake"><code>rule all:
+    input:
+        "trimmed_reads.fq"
+
+rule trim_fastq:
+    input:
+        "raw_reads.fq"
+    output:
+        "trimmed_reads.fq"
+    shell:
+        """
+        seqtk trimfq -b 10 -e 5 {input} &gt; {output}
+        """</code></pre>
+<p>(We will build on this example)</p>
+</section>
+</section>
+<section id="wildcards" class="level1">
+<h1>Wildcards</h1>
+<section id="examples-1" class="level2">
+<h2 class="anchored" data-anchor-id="examples-1">Examples</h2>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
