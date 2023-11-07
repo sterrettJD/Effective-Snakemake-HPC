@@ -1,0 +1,58 @@
+[
+  {
+    "objectID": "About-Snakemake.html",
+    "href": "About-Snakemake.html",
+    "title": "About Snakemake",
+    "section": "",
+    "text": "Snakemake is a workflow management tool. That’s fancy words for “it makes your life easier when you have lots of different compute jobs to run.”\nAt a very surface level, Snakemake looks for the output files you need, and if they aren’t there, it figures out all the steps that need to be run in order to get those files.\nConsider the following example. If snakemake can’t find output file, it will run process data on the input data.\n\n\n\n\nflowchart LR\n  B[process data] --&gt; C(output file)\n  A(input data) --&gt; B[process data]\n  \n\n\n\n\n\n\n\nSounds pretty simple, right? You might be thinking “I could do that, why do I need Snakemake?”\nTo answer that, Snakemake becomes more useful as (1) The number of steps increases, and (2) the number of times you have to run each step increases. Consider the following analysis, where you have 4 samples, and 2 steps for each sample.\n\n\n\n\nflowchart LR\n  B2[step 2] --&gt; C(sample 1 output)\n  B1[step 1] --&gt; B2[step 2]\n  A(sample 1 input) --&gt; B1[step 1]\n\n  E2[step 2] --&gt; F(sample 2 output)\n  E1[step 1] --&gt; E2[step 2]\n  D(sample 2 input) --&gt; E1[step 1]\n  \n  H2[step 2] --&gt; I(sample 3 output)\n  H1[step 1] --&gt; H2[step 2]\n  G(sample 3 input) --&gt; H1[step 1]\n\n  K2[step 2] --&gt; L(sample 4 output)\n  K1[step 1] --&gt; K2[step 2]\n  J(sample 4 input) --&gt; K1[step 1]\n\n\n\n\n\nThis is going to require more of your personal time to run, compared to the first example, and snakemake may be more useful. For example, if each step takes 2-4 hours, you’d have to check the output after 4 hours and run the next step, but snakemake can automatically start running step 1 for each sample once step 2 is done.\nMore realistically, think about a research study that generates metagenomic sequencing data, where you may have 100 samples, that each need to be run through 10 steps. As things scale up, workflow management just makes your life easier.\n\n\n\n\n\nSnakemake can also manage software environments. This comes in useful for conflicting software requirements. For example, imagine step 1 needs Python 3.9, but step 2 only works with Python 3.5. Snakemake can build separate Conda environments for each step, and it provides a framework to keep track of these software environments (aiding reproducibility). If you’ve managed these Conda environments, you can send your snakefile to someone else, and Snakemake will build the software environments for them, so they don’t have to worry about it!\n\n\n\nSnakemake is also nice for parameter space exploration. Imagine that you want to try passing different parameters to step 1. You can make these changes, and snakemake will rerun all downstream steps. There are also ways to easily expand the “parameter space” of your analyses via Snakemake. Sticking with the metagenomics example, you may want to see if trimming your sequencing data at multiple different base pair positions (0, 5, 10, 15, and 20), it’s not too difficult to extend Snakemake to do this."
+  },
+  {
+    "objectID": "About-Snakemake.html#why-do-i-need-a-workflow-manager",
+    "href": "About-Snakemake.html#why-do-i-need-a-workflow-manager",
+    "title": "About Snakemake",
+    "section": "",
+    "text": "Sounds pretty simple, right? You might be thinking “I could do that, why do I need Snakemake?”\nTo answer that, Snakemake becomes more useful as (1) The number of steps increases, and (2) the number of times you have to run each step increases. Consider the following analysis, where you have 4 samples, and 2 steps for each sample.\n\n\n\n\nflowchart LR\n  B2[step 2] --&gt; C(sample 1 output)\n  B1[step 1] --&gt; B2[step 2]\n  A(sample 1 input) --&gt; B1[step 1]\n\n  E2[step 2] --&gt; F(sample 2 output)\n  E1[step 1] --&gt; E2[step 2]\n  D(sample 2 input) --&gt; E1[step 1]\n  \n  H2[step 2] --&gt; I(sample 3 output)\n  H1[step 1] --&gt; H2[step 2]\n  G(sample 3 input) --&gt; H1[step 1]\n\n  K2[step 2] --&gt; L(sample 4 output)\n  K1[step 1] --&gt; K2[step 2]\n  J(sample 4 input) --&gt; K1[step 1]\n\n\n\n\n\nThis is going to require more of your personal time to run, compared to the first example, and snakemake may be more useful. For example, if each step takes 2-4 hours, you’d have to check the output after 4 hours and run the next step, but snakemake can automatically start running step 1 for each sample once step 2 is done.\nMore realistically, think about a research study that generates metagenomic sequencing data, where you may have 100 samples, that each need to be run through 10 steps. As things scale up, workflow management just makes your life easier."
+  },
+  {
+    "objectID": "About-Snakemake.html#other-attributes-that-make-snakemake-nice",
+    "href": "About-Snakemake.html#other-attributes-that-make-snakemake-nice",
+    "title": "About Snakemake",
+    "section": "",
+    "text": "Snakemake can also manage software environments. This comes in useful for conflicting software requirements. For example, imagine step 1 needs Python 3.9, but step 2 only works with Python 3.5. Snakemake can build separate Conda environments for each step, and it provides a framework to keep track of these software environments (aiding reproducibility). If you’ve managed these Conda environments, you can send your snakefile to someone else, and Snakemake will build the software environments for them, so they don’t have to worry about it!\n\n\n\nSnakemake is also nice for parameter space exploration. Imagine that you want to try passing different parameters to step 1. You can make these changes, and snakemake will rerun all downstream steps. There are also ways to easily expand the “parameter space” of your analyses via Snakemake. Sticking with the metagenomics example, you may want to see if trimming your sequencing data at multiple different base pair positions (0, 5, 10, 15, and 20), it’s not too difficult to extend Snakemake to do this."
+  },
+  {
+    "objectID": "Snakemake-Essentials.html",
+    "href": "Snakemake-Essentials.html",
+    "title": "Snakemake Essentials",
+    "section": "",
+    "text": "Installation instructions can be found on the Snakemake documentation page here. In short, you want to install conda and mamba-forge, then run:\nmamba create -c conda-forge -c bioconda -n snakemake_env snakemake"
+  },
+  {
+    "objectID": "Snakemake-Essentials.html#what-is-rule-all",
+    "href": "Snakemake-Essentials.html#what-is-rule-all",
+    "title": "Snakemake Essentials",
+    "section": "What is “rule all”?",
+    "text": "What is “rule all”?\nAt this point, you may be asking “Wait! You said I should have a rule for each step! What’s this rule all mess??”\nrule all is how we specify the output files we want. We specify our target files using the input to rule all. In a scientific case, consider these the input to the paper you’ll write from your analysis.\nSnakemake is tracking what rules need to be run in order to generate the inputs for other rules, so it will track that - rule run_multiQC’s outputs -&gt; rule all’s inputs - rule run_fastQC’s outputs -&gt; rule run_multiQC’s inputs - rule trim_fastq’s outputs -&gt; rule run_fastQC’s inputs\nTherefore, it knows that in order to have the final files, it will use rule trim_fastq -&gt; rule run_fastQC -&gt; rule run_multiQC -&gt; rule all\n\n\n\n\nflowchart LR\n  C[run_multiQC] --&gt; D(all)\n  B[run_fastQC] --&gt; C[run_multiQC]\n  A[trim_fastq] --&gt; B[run_fastQC]"
+  },
+  {
+    "objectID": "Snakemake-Essentials.html#examples",
+    "href": "Snakemake-Essentials.html#examples",
+    "title": "Snakemake Essentials",
+    "section": "Examples",
+    "text": "Examples"
+  },
+  {
+    "objectID": "Snakemake-Essentials.html#examples-1",
+    "href": "Snakemake-Essentials.html#examples-1",
+    "title": "Snakemake Essentials",
+    "section": "Examples",
+    "text": "Examples"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Effective use of Snakemake for workflow management on high performance compute clusters",
+    "section": "",
+    "text": "This is a learning resource.\nrule all:\n    input:\n        \"endpoint.txt\""
+  }
+]
