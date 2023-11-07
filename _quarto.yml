@@ -7,7 +7,9 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - About-Snakemake.qmd
       - Snakemake-Essentials.qmd
+
 
 format:
   html:
