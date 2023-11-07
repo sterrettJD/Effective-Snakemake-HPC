@@ -1,3 +1,3 @@
 # Effective use of Snakemake on high performance compute clusters
 
-With applications to metagenomics
+For the built resource, visit ----> [this website](sterrettjd.github.io/Effective-Snakemake-HPC/) <----
