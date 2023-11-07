@@ -1,0 +1,1 @@
+Sitemap: https://github.com/sterrettJD/Effective-Snakemake-HPC/sitemap.xml

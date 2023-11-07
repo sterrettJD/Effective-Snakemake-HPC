@@ -21,6 +21,13 @@
     "text": "Snakemake can also manage software environments. This comes in useful for conflicting software requirements. For example, imagine step 1 needs Python 3.9, but step 2 only works with Python 3.5. Snakemake can build separate Conda environments for each step, and it provides a framework to keep track of these software environments (aiding reproducibility). If you’ve managed these Conda environments, you can send your snakefile to someone else, and Snakemake will build the software environments for them, so they don’t have to worry about it!\n\n\n\nSnakemake is also nice for parameter space exploration. Imagine that you want to try passing different parameters to step 1. You can make these changes, and snakemake will rerun all downstream steps. There are also ways to easily expand the “parameter space” of your analyses via Snakemake. Sticking with the metagenomics example, you may want to see if trimming your sequencing data at multiple different base pair positions (0, 5, 10, 15, and 20), it’s not too difficult to extend Snakemake to do this."
   },
   {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Effective use of Snakemake for workflow management on high performance compute clusters",
+    "section": "",
+    "text": "This is a learning resource.\nrule all:\n    input:\n        \"endpoint.txt\""
+  },
+  {
     "objectID": "Snakemake-Essentials.html",
     "href": "Snakemake-Essentials.html",
     "title": "Snakemake Essentials",
@@ -47,12 +54,5 @@
     "title": "Snakemake Essentials",
     "section": "Examples",
     "text": "Examples"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Effective use of Snakemake for workflow management on high performance compute clusters",
-    "section": "",
-    "text": "This is a learning resource.\nrule all:\n    input:\n        \"endpoint.txt\""
   }
 ]
