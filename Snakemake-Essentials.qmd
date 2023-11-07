@@ -3,6 +3,55 @@ title: "Snakemake Essentials"
 ---
 
 # What does Snakemake do?
+Snakemake is a workflow management tool. That's fancy words for "it makes your life easier when you have lots of different compute jobs to run."
+
+At a very surface level, Snakemake looks for the output files you need, and if they aren't there, it figures out all the steps that need to be run in order to get those files. 
+
+Consider the following example. If snakemake can't find `output file`, it will run `process data` on the `input data`.
+
+```{mermaid}
+flowchart LR
+  B[process data] --> C(output file)
+  A(input data) --> B[process data]
+  
+```
+
+## Why do I need a workflow manager?
+Sounds pretty simple, right? You might be thinking "I could do that, why do I need Snakemake?" 
+
+To answer that, Snakemake becomes more useful as (1) The number of steps increases, and (2) the number of times you have to run each step increases. Consider the following analysis, where you have 4 samples, and 2 steps for each sample.
+
+```{mermaid}
+flowchart LR
+  B2[step 2] --> C(sample 1 output)
+  B1[step 1] --> B2[step 2]
+  A(sample 1 input) --> B1[step 1]
+
+  E2[step 2] --> F(sample 2 output)
+  E1[step 1] --> E2[step 2]
+  D(sample 2 input) --> E1[step 1]
+  
+  H2[step 2] --> I(sample 3 output)
+  H1[step 1] --> H2[step 2]
+  G(sample 3 input) --> H1[step 1]
+
+  K2[step 2] --> L(sample 4 output)
+  K1[step 1] --> K2[step 2]
+  J(sample 4 input) --> K1[step 1]
+```
+
+ This is going to require more of your **personal** time to run, compared to the first example, and snakemake may be more useful. For example, if each step takes 2-4 hours, you'd have to check the output after 4 hours and run the next step, but snakemake can automatically start running step 1 for each sample once step 2 is done.
+
+ More realistically, think about a research study that generates metagenomic sequencing data, where you may have 100 samples, that each need to be run through 10 steps. As things scale up, workflow management just makes your life easier.
+
+
+
+## Other attributes that make Snakemake nice
+### Software environment management
+ Snakemake can also manage software environments. This comes in useful for conflicting software requirements. For example, imagine `step 1` needs Python 3.9, but `step 2` only works with Python 3.5. Snakemake can build separate Conda environments for each step, and it provides a framework to keep track of these software environments (aiding reproducibility).
+
+### Parameter space exploration
+ Snakemake is also nice for parameter space exploration. Imagine that you want to try passing different parameters to step 1. You can make these changes, and snakemake will rerun all downstream steps. There are also ways to easily expand the "parameter space" of your analyses via Snakemake. Sticking with the metagenomics example, you may want to see if trimming your sequencing data at multiple different base pair positions (0, 5, 10, 15, and 20), it's not too difficult to extend Snakemake to do this.
 
 
 # How do I get myself one of these snakemakers? (Installation)
@@ -18,6 +67,7 @@ The installation command above creates a conda environment with Snakemake access
 
 # Rules
 Snakefiles are structured in rules. Each step in your pipeline is a rule. For example, if you want to run the following 3 steps:
+
 1. Trim fastq files
 2. Run fastQC
 3. Aggregate fastQC reports using multiQC
