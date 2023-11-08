@@ -229,7 +229,7 @@ flowchart LR
 ### About the syntax
 All you need for a wildcard is a list, which you pass to the `expand()` function. The first argument in the expand function is your filepath string, with the wildcard in `{curly brackets}`. Then, you pass the list to use for expanding the filepath. In the previous example, the `sample=["1","2","3"]` defines the values of the wildcard `sample` in `file_{sample}.txt`. 
 
-### Generalizing even more with multiple wildcards
+### Multiple wildcards
 This doesn't have to be `sample`, and you can have multiple wildcards in an `expand()` function. Imagine you're plating a 5-course meal for 3 people - your snakefile would look like this:
 
 ```snakemake
@@ -272,5 +272,57 @@ rule create_file:
         """
 ```
 
+## Wildcards for parameter exploration
+Another common use of wildcards is to explore the effects of using different parameters in your analysis.
 
-## Examples
+Let's look back to our example of trimming sequencing reads. If we wanted to look at changes in read quality if we trim each sample's reads at different base positions, this is what our snakefile could look like:
+
+```snakemake
+import pandas as pd
+metadata = pd.read_csv("metadata.csv")
+samples = metadata["SampleID"] # Samples are in a column named SampleID
+
+read_trim_positions = ["0","10","20"]
+read_trunc_positions = ["0","10","20"] 
+
+rule all:
+    input:
+        "multiqc_report/multiqc_report.html"
+
+# Trim fastq files with varying parameters
+rule trim_fastq:
+    input:
+        "raw_reads_{sample}.fq"
+    output:
+        "trimmed_reads_{sample}_b{start}_e{end}.fq"
+    shell:
+        """
+        seqtk trimfq -b {wildcards.start} -e {wildcards.end} {input} > {output}
+        """
+
+# Run each of the trimmed fastq files through fastQC for quality control
+rule run_fastQC:
+    input:
+        "trimmed_reads_{sample}_b{start}_e{end}.fq"
+    output:
+        "trimmed_reads_{sample}_b{start}_e{end}_fastqc.zip"
+    shell:
+        """
+        fastqc {input} -o .
+        """
+
+# Aggregate fastQC reports using MultiQC
+rule run_multiQC:
+    input:
+        ### LOOK HERE, THIS IS OUR EXPAND COMMAND #################
+        expand("trimmed_reads_{sample}_b{start}_e{end}_fastqc.zip",
+                sample=samples,
+                start=read_trim_positions,
+                end=read_trunc_positions)
+    output:
+        "multiqc_report/multiqc_report.html"
+    shell:
+        """
+        multiqc . -o multiqc_report
+        """
+```
