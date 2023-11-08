@@ -122,6 +122,7 @@ rule rename_multiple_files:
 ```
 
 ## Example with trimming reads
+### Simple
 Imagine you want to trim one fastq file (10 base pairs from the beginning, 5 base pairs from the end) using SeqTK. This is what a very simple snakefile could look like:
 ```snakemake
 rule all:
@@ -138,6 +139,54 @@ rule trim_fastq:
         seqtk trimfq -b 10 -e 5 {input} > {output}
         """
 ```
+
+### Chaining rules
+Now, imagine the raw reads are compressed. We want to unzip them, trim the reads, and recompress them. You could do this in 1 step, but let's break it up for the sake of learning. That would look like this:
+
+```snakemake
+rule all:
+    input:
+        "trimmed_reads.fq.gz"
+
+rule unzip_fastq:
+    input:
+        "raw_reads.fq.gz"
+    output:
+        "raw_reads.fq"
+    shell:
+        """
+        gunzip {input}
+        """
+
+rule trim_fastq:
+    input:
+        "raw_reads.fq"
+    output:
+        "trimmed_reads.fq"
+    shell:
+        """
+        seqtk trimfq -b 10 -e 5 {input} > {output}
+        """
+
+rule zip_trimmed:
+    input:
+        "trimmed_reads.fq"
+    output:
+        "trimmed_reads.fq.gz"
+    shell:
+        """
+        gzip {input}
+        """
+```
+
+Which would create a workflow like this:
+```{mermaid}
+flowchart LR
+  C[zip_trimmed] --> D(all)
+  B[trim_fastq] --> C[zip_trimmed]
+  A[unzip_fastq] --> B[trim_fastq]
+```
+
 (We will build on this example)
 
 
