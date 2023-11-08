@@ -142,6 +142,58 @@ rule trim_fastq:
 
 
 # Wildcards
+Wildcards are a big part of how we can expand and generalize how our snakemake pipeline works. Consider a wildcards to be a list of values you want to run a snakemake rule for, like a for loop: 
+
+```{python}
+#| eval: false
+for value in wildcards: 
+    run rule...
+```
+
+We can expand a rule using wildcards by expanding the input to a rule that requires this rule's output. For example:
+```snakemake
+rule all:
+    input:
+        expand("file_{sample}.txt",
+               sample=["1","2","3"])
+
+rule create_file:
+    output:
+        "file_{sample}.txt"
+    shell:
+        """
+        touch {output}
+        """
+```
+
+In this case, Snakemake will create a workflow that looks like this:
+```{mermaid}
+flowchart LR
+  A[file_1] --> F(all)
+  B[file_2] --> F(all)
+  C[file_3] --> F(all)
+```
+
+This is a *very* common use for wildcards! We often use wildcards we want to run the same rules for each sample. This is one of the ways Snakemake starts to shine. If you have a metadata file with 500 sample IDs, you can read that list of sample IDs into Snakemake using Python/Pandas, then run your snakemake pipeline for all samples. This is what that looks like:
+
+```snakemake
+import pandas as pd
+metadata = pd.read_csv("metadata.csv")
+samples = metadata["SampleID"] # Samples are in a column named SampleID
+
+rule all:
+    input:
+        expand("file_{sample}.txt",
+               sample=samples)
+
+rule create_file:
+    output:
+        "file_{sample}.txt"
+    shell:
+        """
+        touch {output}
+        """
+```
 
 
 ## Examples
