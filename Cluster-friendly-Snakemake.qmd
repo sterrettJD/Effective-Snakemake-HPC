@@ -1,0 +1,14 @@
+---
+title: "Cluster-friendly Snakemake"
+---
+
+# Using a compute cluster
+## Shared resource
+## Batch jobs
+## SLURM example
+
+# Setting up a SLURM profile
+## Why it matters
+## Using Cookiecutter
+
+# Managing resources
