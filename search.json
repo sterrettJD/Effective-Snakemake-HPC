@@ -60,13 +60,34 @@
     "href": "Snakemake-Essentials.html#example-with-trimming-reads",
     "title": "Snakemake Essentials",
     "section": "Example with trimming reads",
-    "text": "Example with trimming reads\nImagine you want to trim one fastq file (10 base pairs from the beginning, 5 base pairs from the end) using SeqTK. This is what a very simple snakefile could look like:\nrule all:\n    input:\n        \"trimmed_reads.fq\"\n\nrule trim_fastq:\n    input:\n        \"raw_reads.fq\"\n    output:\n        \"trimmed_reads.fq\"\n    shell:\n        \"\"\"\n        seqtk trimfq -b 10 -e 5 {input} &gt; {output}\n        \"\"\"\n(We will build on this example)"
+    "text": "Example with trimming reads\n\nSimple\nImagine you want to trim one fastq file (10 base pairs from the beginning, 5 base pairs from the end) using SeqTK. This is what a very simple snakefile could look like:\nrule all:\n    input:\n        \"trimmed_reads.fq\"\n\nrule trim_fastq:\n    input:\n        \"raw_reads.fq\"\n    output:\n        \"trimmed_reads.fq\"\n    shell:\n        \"\"\"\n        seqtk trimfq -b 10 -e 5 {input} &gt; {output}\n        \"\"\"\n\n\nChaining rules\nNow, imagine the raw reads are compressed. We want to unzip them, trim the reads, and recompress them. You could do this in 1 step, but let’s break it up for the sake of learning. That would look like this:\nrule all:\n    input:\n        \"trimmed_reads.fq.gz\"\n\nrule unzip_fastq:\n    input:\n        \"raw_reads.fq.gz\"\n    output:\n        \"raw_reads.fq\"\n    shell:\n        \"\"\"\n        gunzip {input}\n        \"\"\"\n\nrule trim_fastq:\n    input:\n        \"raw_reads.fq\"\n    output:\n        \"trimmed_reads.fq\"\n    shell:\n        \"\"\"\n        seqtk trimfq -b 10 -e 5 {input} &gt; {output}\n        \"\"\"\n\nrule zip_trimmed:\n    input:\n        \"trimmed_reads.fq\"\n    output:\n        \"trimmed_reads.fq.gz\"\n    shell:\n        \"\"\"\n        gzip {input}\n        \"\"\"\nWhich would create a workflow like this:\n\n\n\n\nflowchart LR\n  C[zip_trimmed] --&gt; D(all)\n  B[trim_fastq] --&gt; C[zip_trimmed]\n  A[unzip_fastq] --&gt; B[trim_fastq]\n\n\n\n\n\n(We will build on this example)"
   },
   {
-    "objectID": "Snakemake-Essentials.html#examples-1",
-    "href": "Snakemake-Essentials.html#examples-1",
+    "objectID": "Snakemake-Essentials.html#about-wildcards",
+    "href": "Snakemake-Essentials.html#about-wildcards",
     "title": "Snakemake Essentials",
-    "section": "Examples",
-    "text": "Examples"
+    "section": "About wildcards",
+    "text": "About wildcards\nWildcards are a big part of how we can expand and generalize how our snakemake pipeline works. Consider a wildcards to be a list of values for which you want to run a snakemake rule multiple times. This is a bit like a for loop:\n\nfor value in wildcards: \n    run rule..."
+  },
+  {
+    "objectID": "Snakemake-Essentials.html#syntax",
+    "href": "Snakemake-Essentials.html#syntax",
+    "title": "Snakemake Essentials",
+    "section": "Syntax",
+    "text": "Syntax\n\nOne wildcard\nWe can expand a rule using wildcards by expand()ing the input to a rule that requires this rule’s output. For example:\nrule all:\n    input:\n        expand(\"file_{sample}.txt\",\n               sample=[\"1\",\"2\",\"3\"])\n\nrule create_file:\n    output:\n        \"file_{sample}.txt\"\n    shell:\n        \"\"\"\n        touch {output}\n        \"\"\"\nIn this case, Snakemake will create a workflow that looks like this:\n\n\n\n\nflowchart LR\n  A[file_1] --&gt; F(all)\n  B[file_2] --&gt; F(all)\n  C[file_3] --&gt; F(all)\n\n\n\n\n\n\n\nAbout the syntax\nAll you need for a wildcard is a list, which you pass to the expand() function. The first argument in the expand function is your filepath string, with the wildcard in {curly brackets}. Then, you pass the list to use for expanding the filepath. In the previous example, the sample=[\"1\",\"2\",\"3\"] defines the values of the wildcard sample in file_{sample}.txt.\n\n\nMultiple wildcards\nThis doesn’t have to be sample, and you can have multiple wildcards in an expand() function. Imagine you’re plating a 5-course meal for 3 people - your snakefile would look like this:\ncourse_numbers=[\"1\",\"2\",\"3\",\"4\",\"5\"]\npeople=[\"John\", \"Madi\", \"Casey\"]\n\nrule all:\n    expand(\"course_{course_number}_for_{person}.plate\",\n           course_number=course_numbers,\n           person=people)\n\nrule make_food:\n    ouput:\n        \"course_{course_number}_for_{person}.plate\"\n    shell:\n        \"\"\"\n        make food...\n        \"\"\""
+  },
+  {
+    "objectID": "Snakemake-Essentials.html#wildcards-to-run-snakemake-rules-for-each-sample",
+    "href": "Snakemake-Essentials.html#wildcards-to-run-snakemake-rules-for-each-sample",
+    "title": "Snakemake Essentials",
+    "section": "Wildcards to run snakemake rules for each sample",
+    "text": "Wildcards to run snakemake rules for each sample\nThis is a very common use for wildcards! We often use wildcards we want to run the same rules for each sample. This is one of the ways Snakemake starts to shine. If you have a metadata file with 500 sample IDs, you can read that list of sample IDs into Snakemake using Python/Pandas, then run your snakemake pipeline for all samples. This is what that looks like:\nimport pandas as pd\nmetadata = pd.read_csv(\"metadata.csv\")\nsamples = metadata[\"SampleID\"] # Samples are in a column named SampleID\n\nrule all:\n    input:\n        expand(\"file_{sample}.txt\",\n               sample=samples)\n\nrule create_file:\n    output:\n        \"file_{sample}.txt\"\n    shell:\n        \"\"\"\n        touch {output}\n        \"\"\""
+  },
+  {
+    "objectID": "Snakemake-Essentials.html#wildcards-for-parameter-exploration",
+    "href": "Snakemake-Essentials.html#wildcards-for-parameter-exploration",
+    "title": "Snakemake Essentials",
+    "section": "Wildcards for parameter exploration",
+    "text": "Wildcards for parameter exploration\nAnother common use of wildcards is to explore the effects of using different parameters in your analysis.\nLet’s look back to our example of trimming sequencing reads. If we wanted to look at changes in read quality if we trim each sample’s reads at different base positions, this is what our snakefile could look like:\nimport pandas as pd\nmetadata = pd.read_csv(\"metadata.csv\")\nsamples = metadata[\"SampleID\"] # Samples are in a column named SampleID\n\nread_trim_positions = [\"0\",\"10\",\"20\"]\nread_trunc_positions = [\"0\",\"10\",\"20\"] \n\nrule all:\n    input:\n        \"multiqc_report/multiqc_report.html\"\n\n# Trim fastq files with varying parameters\nrule trim_fastq:\n    input:\n        \"raw_reads_{sample}.fq\"\n    output:\n        \"trimmed_reads_{sample}_b{start}_e{end}.fq\"\n    shell:\n        \"\"\"\n        seqtk trimfq -b {wildcards.start} -e {wildcards.end} {input} &gt; {output}\n        \"\"\"\n\n# Run each of the trimmed fastq files through fastQC for quality control\nrule run_fastQC:\n    input:\n        \"trimmed_reads_{sample}_b{start}_e{end}.fq\"\n    output:\n        \"trimmed_reads_{sample}_b{start}_e{end}_fastqc.zip\"\n    shell:\n        \"\"\"\n        fastqc {input} -o .\n        \"\"\"\n\n# Aggregate fastQC reports using MultiQC\nrule run_multiQC:\n    input:\n        ### LOOK HERE, THIS IS OUR EXPAND COMMAND #################\n        expand(\"trimmed_reads_{sample}_b{start}_e{end}_fastqc.zip\",\n                sample=samples,\n                start=read_trim_positions,\n                end=read_trunc_positions)\n    output:\n        \"multiqc_report/multiqc_report.html\"\n    shell:\n        \"\"\"\n        multiqc . -o multiqc_report\n        \"\"\""
   }
 ]
