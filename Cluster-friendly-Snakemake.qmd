@@ -11,11 +11,40 @@ title: "Cluster-friendly Snakemake"
 This section will explain how to set up a SLURM profile to integrate Snakemake with the job scheduling system, SLURM.
 
 ## Why it matters
-SLURM profiles are advantageous, because they will manage submitting each step in your Snakemake pipeline as separate batch jobs. For example, if you have 50 samples to process through 2 rules, the SLURM profile will manage submitting each rule for each sample as a separate job, so (A) these jobs can run in parallel, (B) it is easy to monitor the job status for each unique sample/step, and (C) if one fails, the others will keep going. 
+SLURM profiles are advantageous because they manage submission/monitoring of each step in your Snakemake pipeline as separate batch jobs. For example, if you have 50 samples to process through 2 rules, the SLURM profile will submit/monitor each rule & sample combination as a separate job, so: 
+
+  1. These jobs can run in parallel, with unique resource requirements for each job.
+  2. It is easy to monitor the job status for each unique sample/step.
+  3. If one fails, the others will keep going. 
 
 Without a SLURM profile, Snakemake would try to run each job sequentially within the batch job that you've submitted to run Snakemake, and this could get cumbersome. Additionally, imagine step 1 requires 2 GB of memory, but step 2 requires 100 GB memory. Without submitting individual batch jobs for each step/sample, you would have to request 100 GB memory for the full duration, which would result in a waste of resources on the shared cluster while the first step is running. 
 
-## Using Cookiecutter
+## Using cookiecutter
+### About the profile
+I recommend using the [official Snakemake SLURM profile](https://github.com/Snakemake-Profiles/slurm), which you can install using [cookiecutter](https://cookiecutter.readthedocs.io/en/stable/README.html). This profile manages job submission and monitors submitted jobs. 
+
+If you plan on running a Snakemake pipeline with **many many** steps that do not take very long to run (i.e., you're submitting tens of thousands of jobs that run quickly, such that the submission is the bottleneck), you may want to check out John Blischak's [simple Snakemake SLURM profile](https://github.com/jdblischak/smk-simple-slurm), which is does not have as many status checks and submits jobs much faster. If job submission isn't a bottleneck, it's best to use the official Snakemake SLURM profile ([use speed with caution](https://github.com/jdblischak/smk-simple-slurm#use-speed-with-caution)). 
+
+### Installating cookiecutter
+In your Snakemake Conda environment:
+```
+pip install pipx
+pipx install cookiecutter
+```
+
+### Snakemake SLURM profile setup
+In your Snakemake Conda environment:
+```
+# create config directory that snakemake searches for profiles (or use something else)
+profile_dir="${HOME}/.config/snakemake"
+mkdir -p "$profile_dir"
+# use cookiecutter to create the profile in the config directory
+template="gh:Snakemake-Profiles/slurm"
+cookiecutter --output-dir "$profile_dir" "$template"
+```
+
+Then, hit enter to follow all of the default prompts, **except** make sure `use_conda` is `True`. That will look like this: 
+![screenshot of profile setup](figures/profile-setup.png)
 
 
 # Managing resources
