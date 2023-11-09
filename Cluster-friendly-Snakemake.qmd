@@ -5,10 +5,17 @@ title: "Cluster-friendly Snakemake"
 # Using a compute cluster
 ## Shared resource
 ## Batch jobs
-## SLURM example
+## Focus on SLURM
 
 # Setting up a SLURM profile
+This section will explain how to set up a SLURM profile to integrate Snakemake with the job scheduling system, SLURM.
+
 ## Why it matters
+SLURM profiles are advantageous, because they will manage submitting each step in your Snakemake pipeline as separate batch jobs. For example, if you have 50 samples to process through 2 rules, the SLURM profile will manage submitting each rule for each sample as a separate job, so (A) these jobs can run in parallel, (B) it is easy to monitor the job status for each unique sample/step, and (C) if one fails, the others will keep going. 
+
+Without a SLURM profile, Snakemake would try to run each job sequentially within the batch job that you've submitted to run Snakemake, and this could get cumbersome. Additionally, imagine step 1 requires 2 GB of memory, but step 2 requires 100 GB memory. Without submitting individual batch jobs for each step/sample, you would have to request 100 GB memory for the full duration, which would result in a waste of resources on the shared cluster while the first step is running. 
+
 ## Using Cookiecutter
+
 
 # Managing resources
