@@ -183,7 +183,7 @@ rule parallelizable_job:
 I personally like to set default resources for each rule in my Snakefile and sanitize the config resources. I'm not sure if it's "best practices", but it feels safer. For example, if I accidentally delete the memory param from my config, I don't want the Snakemake to instead pass the default memory param to Slurm. 
 
 #### Story time - don't forget the resource requirements!!
-I did this once when reconstructing genomes from metagenomes (MAGs) using MetaSPAdes, which needed ~150GB per sample, but I accidentally deleted the memory requirement in my config file, and Snakemake submitted 50 jobs to Slurm, requesting the default of 8GB per sample. Slurm scheduled all of these jobs on two compute nodes with 500GB total RAM, thinking I needed ~400GB total, but I really needed ~7500GB, and I crashed these compute nodes and received a scary email from the cluster admins. Learn from my mistakes!
+I once left out some important resource requirements, leading to crashing two nodes of a compute cluster. When reconstructing genomes from metagenomes (MAGs) using MetaSPAdes (which needed ~150GB per sample), I accidentally deleted the memory requirement in my config file, and Snakemake submitted 50 jobs to Slurm, requesting the default of 8GB per sample. Slurm scheduled all of these jobs on two compute nodes with 500GB total RAM, thinking I needed ~400GB total, when I really needed ~7500GB, and I crashed these compute nodes and received a scary email from the cluster admins. Learn from my mistakes!
 
 #### How I avoid issues
 I write functions such as this one to handle the resources I'm passing to each rule:
