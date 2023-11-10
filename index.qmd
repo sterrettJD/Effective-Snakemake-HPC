@@ -23,3 +23,6 @@ A primer on shotgun metagenomic data:
  - If any of these concepts are unfamiliar to your, or if they spark an interest in working with metagenomic data: 
    - Thomas Sharpton has written [An introduction to the analysis of shotgun metagenomic data](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4059276/), which is a nice overview of many data processing steps. 
    - Additionally, the [Metagenomics Wiki](https://www.metagenomics.wiki/tools/short-read) explains many of the tools, as well as how to use them.
+
+# Contributing to this resource
+If you have questions or suggestions, feel free to open an issue or pull request on the [GitHub repo](https://github.com/sterrettJD/Effective-Snakemake-HPC/) for this site :)
