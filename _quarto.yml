@@ -5,7 +5,7 @@ website:
   title: "Effective Snakemake on Computer Clusters"
   navbar:
     left:
-      - href: quarto/index.qmd
+      - href: index.qmd
         text: Home
       - quarto/About-Snakemake.qmd
       - quarto/Snakemake-Essentials.qmd
