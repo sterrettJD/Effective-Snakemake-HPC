@@ -11,7 +11,7 @@ Resource management for computing is often done using a job scheduler such as [S
 
 ## Batch jobs
 Unlike running commands from a command line on your local computer, any compute-heavy jobs on clusters need to be done through the submission of batch jobs. Batch jobs could be considered "wrappers" for your compute jobs, with specifications of the resources needed. Slurm allocates the necessary resources on a compute node, then sends that job to be performed on the compute node. Below is an image from ETH Zurich scientific computing [wiki](https://scicomp.ethz.ch/wiki/Job_management_with_SLURM) demonstrating this process.
-![Figure of batch job submission](figures/1000px-Batch_system.png)
+![Figure of batch job submission](../figures/1000px-Batch_system.png)
 
 ## Example batch jobs submission
 This often involved running a `.sbatch` script, which has the resource requirements at the top. Here is an example for trimming reads in a fastq file:
@@ -109,7 +109,7 @@ cookiecutter --output-dir "$profile_dir" "$template"
 ```
 
 Then, hit enter to follow all of the default prompts, **except** make sure `use_conda` is `True`. That will look like this: 
-![screenshot of profile setup](figures/profile-setup.png)
+![screenshot of profile setup](../figures/profile-setup.png)
 
 
 # Submitting Slurm jobs with Snakemake
