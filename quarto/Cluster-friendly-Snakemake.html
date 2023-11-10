@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Effective-Snakemake-HPC - Cluster-friendly Snakemake</title>
+<title>Effective Snakemake on Computer Clusters - Cluster-friendly Snakemake</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -57,22 +57,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -95,7 +95,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-fixed">
@@ -105,8 +105,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Effective-Snakemake-HPC</span>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Effective Snakemake on Computer Clusters</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -116,19 +116,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html" rel="" target="">
+    <a class="nav-link" href="../quarto/index.html" rel="" target="">
  <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./About-Snakemake.html" rel="" target="">
+    <a class="nav-link" href="../quarto/About-Snakemake.html" rel="" target="">
  <span class="menu-text">About Snakemake</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./Snakemake-Essentials.html" rel="" target="">
+    <a class="nav-link" href="../quarto/Snakemake-Essentials.html" rel="" target="">
  <span class="menu-text">Snakemake Essentials</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./Cluster-friendly-Snakemake.html" rel="" target="" aria-current="page">
+    <a class="nav-link active" href="../quarto/Cluster-friendly-Snakemake.html" rel="" target="" aria-current="page">
  <span class="menu-text">Cluster-friendly Snakemake</span></a>
   </li>  
 </ul>
@@ -215,7 +215,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="batch-jobs" class="level2">
 <h2 class="anchored" data-anchor-id="batch-jobs">Batch jobs</h2>
-<p>Unlike running commands from a command line on your local computer, any compute-heavy jobs on clusters need to be done through the submission of batch jobs. Batch jobs could be considered “wrappers” for your compute jobs, with specifications of the resources needed. Slurm allocates the necessary resources on a compute node, then sends that job to be performed on the compute node. Below is an image from ETH Zurich scientific computing <a href="https://scicomp.ethz.ch/wiki/Job_management_with_SLURM">wiki</a> demonstrating this process. <img src="figures/1000px-Batch_system.png" class="img-fluid" alt="Figure of batch job submission"></p>
+<p>Unlike running commands from a command line on your local computer, any compute-heavy jobs on clusters need to be done through the submission of batch jobs. Batch jobs could be considered “wrappers” for your compute jobs, with specifications of the resources needed. Slurm allocates the necessary resources on a compute node, then sends that job to be performed on the compute node. Below is an image from ETH Zurich scientific computing <a href="https://scicomp.ethz.ch/wiki/Job_management_with_SLURM">wiki</a> demonstrating this process. <img src="../figures/1000px-Batch_system.png" class="img-fluid" alt="Figure of batch job submission"></p>
 </section>
 <section id="example-batch-jobs-submission" class="level2">
 <h2 class="anchored" data-anchor-id="example-batch-jobs-submission">Example batch jobs submission</h2>
@@ -305,7 +305,7 @@ mkdir -p "$profile_dir"
 # use cookiecutter to create the profile in the config directory
 template="gh:Snakemake-Profiles/slurm"
 cookiecutter --output-dir "$profile_dir" "$template"</code></pre>
-<p>Then, hit enter to follow all of the default prompts, <strong>except</strong> make sure <code>use_conda</code> is <code>True</code>. That will look like this: <img src="figures/profile-setup.png" class="img-fluid" alt="screenshot of profile setup"></p>
+<p>Then, hit enter to follow all of the default prompts, <strong>except</strong> make sure <code>use_conda</code> is <code>True</code>. That will look like this: <img src="../figures/profile-setup.png" class="img-fluid" alt="screenshot of profile setup"></p>
 </section>
 </section>
 </section>
