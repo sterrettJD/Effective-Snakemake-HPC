@@ -4,8 +4,39 @@ title: "Cluster-friendly Snakemake"
 
 # Using a compute cluster
 ## Shared resource
+Compute clusters are often shared resources. For example, [Fiji](https://bit.colorado.edu/biofrontiers-computing/fiji/) and [Alpine](https://www.colorado.edu/rc/alpine) are two high performance compute clusters for researchers at the University of Colorado. These resources are shared across the entire university (and sometimes multiple universities), which makes managing resources very important. 
+
+## SLURM
+Resource management for computing is often done using a job scheduler such as [Slurm](https://slurm.schedmd.com/overview.html). Slurm will be the focal job scheduling system in this resource, but others exist (the concepts remain consistent across other systems). Slurm manages the priority of compute jobs across users (based on factors such as memory/time requirements and user priority), and it manages parallelization and execution of jobs on compute nodes. 
+
 ## Batch jobs
-## Focus on SLURM
+Unlike running commands from a command line on your local computer, any compute-heavy jobs on clusters need to be done through the submission of batch jobs. Batch jobs could be considered "wrappers" for your compute jobs, with specifications of the resources needed. Slurm allocates the necessary resources on a compute node, then sends that job to be performed on the compute node. Below is an image from ETH Zurich scientific computing [wiki](https://scicomp.ethz.ch/wiki/Job_management_with_SLURM) demonstrating this process.
+![Figure of batch job submission](figures/1000px-Batch_system.png)
+
+## Example batch jobs submission
+This often involved running a `.sbatch` script, which has the resource requirements at the top. Here is an example for trimming reads in a fastq file:
+```{snakemake}
+#SBATCH --mail-user=<email_address>@colorado.edu
+#SBATCH --partition=short # run on the short partition
+#SBATCH --nodes=1 # Only use a single node
+#SBATCH --ntasks=1 # Run with one thread
+#SBATCH --mem=8gb # Memory limit
+#SBATCH --time=02:00:00 # Time limit hrs:min:sec
+#SBATCH --output=/path/to/here/logs/trim_reads_%j.out # Standard output and error log
+#SBATCH --error=/path/to/here/logs/trim_reads_%j.err # %j inserts job number
+
+# activate conda environment
+source activate seqtk_env
+
+# trim reads
+seqtk trimfq -b 10 -e 5 raw_reads.fq > trimmed_reads.fq
+```
+
+Which could be run with the following command:
+```
+sbatch trim_reads.sbatch
+```
+
 
 # Setting up a SLURM profile
 This section will explain how to set up a SLURM profile to integrate Snakemake with the job scheduling system, SLURM.
