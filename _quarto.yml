@@ -9,6 +9,7 @@ website:
         text: Home
       - About-Snakemake.qmd
       - Snakemake-Essentials.qmd
+      - Cluster-friendly-Snakemake.qmd
 
 
 format:
