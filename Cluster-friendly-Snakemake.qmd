@@ -112,4 +112,32 @@ Then, hit enter to follow all of the default prompts, **except** make sure `use_
 ![screenshot of profile setup](figures/profile-setup.png)
 
 
-# Managing resources
+# Submitting Slurm jobs with Snakemake
+## Tell Snakemake about your profile 
+When running Snakemake with a profile, you need to use the `--profile` flag, like this:
+```
+snakemake --profile ~/.config/snakemake/slurm
+```
+
+## Providing resources in rules
+In your rule, you can pass resources much like passing input/outputs specs. Threads are generally passed outside of the `resources` section. Additionally, any specifications for a rule can be accessed in the rule's shell command, using syntax such as `{resources.partition}` to access the partition name, or `{threads}` to access the number of threads. Typically, you shouldn't need to access Slurm-specific aspects like the partition (your profile is handling this), but for some command line tools, where you can specifiy resources, it's useful to pass `{threads}` into your shell command.
+
+You can consult the profile's documentation for all of the options, but this is how I pass my resources.
+
+```{snakemake}
+rule parallelizable_job:
+    input:
+        "raw_reads.fq"
+    output:
+        "trimmed_reads.fq"
+    resources:
+        partition="<partition_name>",
+        mem_mb=int(8*1000), # 8 GB
+        runtime=int(2*60), # min, or 2 hours
+        slurm="mail-user=<email_address>@colorado.edu"
+    threads: 1
+    shell:
+        """
+        run_parallelizable_task --threads {threads} --max_memory {resources.mem_mb}
+        """
+```
