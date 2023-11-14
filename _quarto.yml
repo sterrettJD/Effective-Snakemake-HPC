@@ -9,8 +9,8 @@ website:
         text: Home
       - quarto/About-Snakemake.qmd
       - quarto/Snakemake-Essentials.qmd
-      - quarto/Qiime2-Applications.qmd
       - quarto/Cluster-friendly-Snakemake.qmd
+      - quarto/Qiime2-Applications.qmd
 
 
 format:
