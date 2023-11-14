@@ -50,6 +50,7 @@ rule get_reference_databases:
         "databases/silva-138-99-515-806-nb-classifier.qza"
     shell:
         """
+        mkdir -p ./databases/ # make the directory if it doesn't exist, otherwise does nothing 
         wget https://data.qiime2.org/2023.5/common/sepp-refs-silva-128.qza -P ./databases/
         wget https://data.qiime2.org/2023.5/common/silva-138-99-515-806-nb-classifier.qza -P ./databases/
         """
@@ -75,61 +76,61 @@ rule merge_tables:
 Both Qiime2 and Snakemake are notoriously known for being picky about the little things (i.e. did you have an extra space that you forgot about after one of your commands and now you have a really unhelpful error message?) and sometimes the combination of the two can be incredibly frustrating.
 
 ## Things I've had to learn the hard way:
-1. Anytime you call a Qiime2 command that outputs a directory of files (like qiime diversity core-metrics-phylogenetic), Qiime and Snakemake get mad at each other because Snakemake creates the output directory for Qiime. Qiime will then give you an error about how the output directory already exists (because Snakemake created it first).
+1. Anytime you call a Qiime2 command that outputs a directory of files (like `qiime diversity core-metrics-phylogenetic`), Qiime and Snakemake get mad at each other because Snakemake creates the output directory for Qiime. Qiime will then give you an error about how the output directory already exists (because Snakemake created it first).
 
 Instead, you need to specify every single output file that would be in that directory in the Qiime command itself instead of just the output directory. For example:
    
 ```snakemake
 rule core_metrics_analysis:
     input:
-        "tree.qza",
-        "tax_filt_actual.qza",
-        "metadata.tsv"
+        TREE="tree.qza",
+        TABLE="tax_filt_actual.qza",
+        METADATA="metadata.tsv"
     output:
-        "bray_curtis_distance_matrix.qza",
-        "bray_curtis_emperor.qzv",
-        "bray_curtis_pcoa_results.qza",
-        "evenness_vector.qza",
-        "faith_pd_vector.qza",
-        "jaccard_distance_matrix.qza",
-        "jaccard_emperor.qzv",
-        "jaccard_pcoa_results.qza",
-        "observed_features_vector.qza",
-        "rarefied_table.qza",
-        "shannon_vector.qza",
-        "unweighted_unifrac_distance_matrix.qza",
-        "unweighted_unifrac_emperor.qzv",
-        "unweighted_unifrac_pcoa_results.qza",
-        "weighted_unifrac_distance_matrix.qza",
-        "weighted_unifrac_emperor.qzv",
-        "weighted_unifrac_pcoa_results.qza"
+        BCDM="bray_curtis_distance_matrix.qza",
+        BCEMP="bray_curtis_emperor.qzv",
+        BCPCOA="bray_curtis_pcoa_results.qza",
+        EVEN="evenness_vector.qza",
+        FAITH="faith_pd_vector.qza",
+        JDM="jaccard_distance_matrix.qza",
+        JEMP="jaccard_emperor.qzv",
+        JPCOA="jaccard_pcoa_results.qza",
+        OF="observed_features_vector.qza",
+        RAREFIED="rarefied_table.qza",
+        SHANNON="shannon_vector.qza",
+        UUDM="unweighted_unifrac_distance_matrix.qza",
+        UUEMP="unweighted_unifrac_emperor.qzv",
+        UUPCOA="unweighted_unifrac_pcoa_results.qza",
+        WUDM="weighted_unifrac_distance_matrix.qza",
+        WUEMP="weighted_unifrac_emperor.qzv",
+        WUPCOA="weighted_unifrac_pcoa_results.qza"
     conda:
         "qiime2-2023.5"
+    params:
+        sampling_depth=10000
     shell:
         """
         qiime diversity core-metrics-phylogenetic \
-            --i-phylogeny tree.qza \
-            --i-table tax_filt_actual.qza \
-            --p-sampling-depth  10000 \
-            --m-metadata-file metadata.tsv \
-            --o-rarefied-table rarefied_table.qza \
-            --o-faith-pd-vector faith_pd_vector.qza \
-            --o-observed-features-vector observed_features_vector.qza \
-            --o-shannon-vector shannon_vector.qza \
-            --o-evenness-vector evenness_vector.qza \
-            --o-unweighted-unifrac-distance-matrix unweighted_unifrac_distance_matrix.qza \
-            --o-weighted-unifrac-distance-matrix weighted_unifrac_distance_matrix.qza \
-            --o-jaccard-distance-matrix jaccard_distance_matrix.qza \
-            --o-bray-curtis-distance-matrix bray_curtis_distance_matrix.qza \
-            --o-unweighted-unifrac-pcoa-results unweighted_unifrac_pcoa_results.qza \
-            --o-weighted-unifrac-pcoa-results ./data/core_outputs/weighted_unifrac_pcoa_results.qza \
-            --o-jaccard-pcoa-results ./data/core_outputs/jaccard_pcoa_results.qza \
-            --o-bray-curtis-pcoa-results bray_curtis_pcoa_results.qza \
-            --o-unweighted-unifrac-emperor unweighted_unifrac_emperor.qzv \
-            --o-weighted-unifrac-emperor weighted_unifrac_emperor.qzv \
-            --o-jaccard-emperor jaccard_emperor.qzv \
-            --o-bray-curtis-emperor bray_curtis_emperor.qzv
+            --i-phylogeny {input.TREE} \
+            --i-table {input.TABLE} \
+            --p-sampling-depth {params.sampling_depth} \
+            --m-metadata-file {input.METADATA} \
+            --o-rarefied-table {output.RAREFIED} \
+            --o-faith-pd-vector {output.FAITH} \
+            --o-observed-features-vector {output.OF} \
+            --o-shannon-vector {output.SHANNON} \
+            --o-evenness-vector {output.EVEN} \
+            --o-unweighted-unifrac-distance-matrix {output.UUDM} \
+            --o-weighted-unifrac-distance-matrix {output.WUDM} \
+            --o-jaccard-distance-matrix {output.JDM} \
+            --o-bray-curtis-distance-matrix {output.BCDM} \
+            --o-unweighted-unifrac-pcoa-results {output.UUPCOA} \
+            --o-weighted-unifrac-pcoa-results {output.WUPCOA} \
+            --o-jaccard-pcoa-results {output.JPCOA} \
+            --o-bray-curtis-pcoa-results {output.BCPCOA} \
+            --o-unweighted-unifrac-emperor {output.UUEMP} \
+            --o-weighted-unifrac-emperor {output.WUEMP} \
+            --o-jaccard-emperor {output.JEMP} \
+            --o-bray-curtis-emperor {output.BCEMP}
         """
 ```
-
-2. 
