@@ -40,7 +40,8 @@ flowchart LR
   J(sample 4 input) --> K1[step 1]
 ```
 
- This is going to require more of your **personal** time to run, compared to the first example, and snakemake may be more useful. For example, if each step takes 2-4 hours, you'd have to check the output after 4 hours and run the next step, but snakemake can automatically start running step 1 for each sample once step 2 is done.
+ This is going to require more of your **personal** time to run, compared to the first example, and Snakemake may be more useful. For example, if each step takes 2-4 hours, you'd have to check the output after 4 hours and run the next step, but Snakemake can automatically start running step 1 for each sample once step 2 is done.
+
 
  More realistically, think about a research study that generates metagenomic sequencing data, where you may have 100 samples, that each need to be run through 10 steps. As things scale up, workflow management just makes your life easier.
 

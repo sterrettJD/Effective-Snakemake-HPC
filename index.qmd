@@ -24,5 +24,13 @@ A primer on shotgun metagenomic data:
    - Thomas Sharpton has written [An introduction to the analysis of shotgun metagenomic data](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4059276/), which is a nice overview of many data processing steps. 
    - Additionally, the [Metagenomics Wiki](https://www.metagenomics.wiki/tools/short-read) explains many of the tools, as well as how to use them.
 
+# Applications to 16S rDNA data
+Other examples may be based on the analysis of 16S rDNA sequencing data which is commonly performed for microbiome profiling and is what the other contributor to this resource works with on a daily basis. Once again, don't fret if you've never encountered 16S rDNA data, the basic principles of Snakemake can be applied in a variety of situations. 
+
+A brief background on 16S rDNA data:
+
+ - Like shotgun metagenomics, the sequencing data is stored in [Fastq format](https://en.wikipedia.org/wiki/FASTQ_format) as a compressed file.
+ - These fastq.gz files are then put into microbiome profiling programs such as [Qiime2](https://qiime2.org/) or [mothur](https://mothur.org/).
+
 # Contributing to this resource
 If you have questions or suggestions, feel free to open an issue or pull request on the [GitHub repo](https://github.com/sterrettJD/Effective-Snakemake-HPC/) for this site :)

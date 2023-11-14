@@ -1,0 +1,136 @@
+---
+title: "Qiime2 Applications"
+---
+
+# Getting Qiime2 and Snakemake to work together 
+Firstly, let's make sure that you have `conda`, `mamba-forge`, and Qiime2 installed. Follow the installation instructions for the operating system of your local computer (or wherever you want to install Qiime2) which can be found [here](https://docs.qiime2.org/2023.5/install/native/).
+
+Once you have Qiime2 installed, activate your Qiime2 environment by running `conda activate qiime2-2023.5` before running:
+
+```
+pip install snakemake
+```
+
+You now have Snakemake installed in your Qiime2 environment and can start working on your pipeline!
+
+# Example workflow
+```snakemake
+rule all:
+    input:
+        "test_seqs.fasta",
+        "databases/sepp-refs-silva-128.qza",
+        "databases/silva-138-99-515-806-nb-classifier.qza",
+        "merged_table.qza"
+
+
+rule convert_to_fasta:
+    input:
+        "test_seqs.qza"
+    output:
+        "test_seqs.fasta"
+    conda:
+        # you need to reference your installed Qiime2 environment
+        # or you can activate that environment before calling snakemake 
+        # and you don't have to reference it here 
+        "qiime2-2023.5"
+    shell:
+        """
+        qiime tools export \
+            --input-path {input} \
+            --output-path ./ # this puts the output file in your current working directory
+        
+        mv dna-sequences.fasta {output}
+        """ 
+
+# you can reference online classifiers via wget 
+# so you don't need to have them downloaded already
+rule get_reference_databases:
+    output:
+        "databases/sepp-refs-silva-128.qza",
+        "databases/silva-138-99-515-806-nb-classifier.qza"
+    shell:
+        """
+        mkdir -p ./databases/ # make the directory if it doesn't exist, otherwise does nothing 
+        wget https://data.qiime2.org/2023.5/common/sepp-refs-silva-128.qza -P ./databases/
+        wget https://data.qiime2.org/2023.5/common/silva-138-99-515-806-nb-classifier.qza -P ./databases/
+        """
+
+rule merge_tables:
+    input:
+        table1="table1.qza",
+        table2="table2.qza"
+    output:
+        merged_table="merged_table.qza"
+    conda:
+        "qiime2-2023.5"
+    shell:
+        """
+        qiime feature-table merge \
+            --i-tables {input.table1} \
+            --i-tables {input.table2} \
+            --o-merged-table {output.merged_table}
+        """
+```
+
+# Oh no! Someone is unhappy, what do I do?
+Both Qiime2 and Snakemake are notoriously known for being picky about the little things (i.e. did you have an extra space that you forgot about after one of your commands and now you have a really unhelpful error message?) and sometimes the combination of the two can be incredibly frustrating.
+
+## Things I've had to learn the hard way:
+1. Anytime you call a Qiime2 command that outputs a directory of files (like `qiime diversity core-metrics-phylogenetic`), Qiime and Snakemake get mad at each other because Snakemake creates the output directory for Qiime. Qiime will then give you an error about how the output directory already exists (because Snakemake created it first).
+
+Instead, you need to specify every single output file that would be in that directory in the Qiime command itself instead of just the output directory. For example:
+   
+```snakemake
+rule core_metrics_analysis:
+    input:
+        TREE="tree.qza",
+        TABLE="tax_filt_actual.qza",
+        METADATA="metadata.tsv"
+    output:
+        BCDM="bray_curtis_distance_matrix.qza",
+        BCEMP="bray_curtis_emperor.qzv",
+        BCPCOA="bray_curtis_pcoa_results.qza",
+        EVEN="evenness_vector.qza",
+        FAITH="faith_pd_vector.qza",
+        JDM="jaccard_distance_matrix.qza",
+        JEMP="jaccard_emperor.qzv",
+        JPCOA="jaccard_pcoa_results.qza",
+        OF="observed_features_vector.qza",
+        RAREFIED="rarefied_table.qza",
+        SHANNON="shannon_vector.qza",
+        UUDM="unweighted_unifrac_distance_matrix.qza",
+        UUEMP="unweighted_unifrac_emperor.qzv",
+        UUPCOA="unweighted_unifrac_pcoa_results.qza",
+        WUDM="weighted_unifrac_distance_matrix.qza",
+        WUEMP="weighted_unifrac_emperor.qzv",
+        WUPCOA="weighted_unifrac_pcoa_results.qza"
+    conda:
+        "qiime2-2023.5"
+    params:
+        sampling_depth=10000
+    shell:
+        """
+        qiime diversity core-metrics-phylogenetic \
+            --i-phylogeny {input.TREE} \
+            --i-table {input.TABLE} \
+            --p-sampling-depth {params.sampling_depth} \
+            --m-metadata-file {input.METADATA} \
+            --o-rarefied-table {output.RAREFIED} \
+            --o-faith-pd-vector {output.FAITH} \
+            --o-observed-features-vector {output.OF} \
+            --o-shannon-vector {output.SHANNON} \
+            --o-evenness-vector {output.EVEN} \
+            --o-unweighted-unifrac-distance-matrix {output.UUDM} \
+            --o-weighted-unifrac-distance-matrix {output.WUDM} \
+            --o-jaccard-distance-matrix {output.JDM} \
+            --o-bray-curtis-distance-matrix {output.BCDM} \
+            --o-unweighted-unifrac-pcoa-results {output.UUPCOA} \
+            --o-weighted-unifrac-pcoa-results {output.WUPCOA} \
+            --o-jaccard-pcoa-results {output.JPCOA} \
+            --o-bray-curtis-pcoa-results {output.BCPCOA} \
+            --o-unweighted-unifrac-emperor {output.UUEMP} \
+            --o-weighted-unifrac-emperor {output.WUEMP} \
+            --o-jaccard-emperor {output.JEMP} \
+            --o-bray-curtis-emperor {output.BCEMP}
+        """
+```
