@@ -7,9 +7,9 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - About-Snakemake.qmd
-      - Snakemake-Essentials.qmd
-      - Qiime2-Applications.qmd
+      - quarto/About-Snakemake.qmd
+      - quarto/Snakemake-Essentials.qmd
+      - quarto/Qiime2-Applications.qmd
 
 
 format:
