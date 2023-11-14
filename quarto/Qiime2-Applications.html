@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Effective Snakemake on Computer Clusters - Effective use of Snakemake for workflow management on high performance compute clusters</title>
+<title>Effective Snakemake on Computer Clusters - Qiime2 Applications</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,22 +23,22 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -61,7 +61,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-fixed">
@@ -71,7 +71,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Effective Snakemake on Computer Clusters</span>
     </a>
   </div>
@@ -82,23 +82,23 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" rel="" target="" aria-current="page">
+    <a class="nav-link" href="../index.html" rel="" target="">
  <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./quarto/About-Snakemake.html" rel="" target="">
+    <a class="nav-link" href="../quarto/About-Snakemake.html" rel="" target="">
  <span class="menu-text">About Snakemake</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./quarto/Snakemake-Essentials.html" rel="" target="">
+    <a class="nav-link" href="../quarto/Snakemake-Essentials.html" rel="" target="">
  <span class="menu-text">Snakemake Essentials</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./quarto/Qiime2-Applications.html" rel="" target="">
+    <a class="nav-link active" href="../quarto/Qiime2-Applications.html" rel="" target="" aria-current="page">
  <span class="menu-text">Qiime2 Applications</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./quarto/Cluster-friendly-Snakemake.html" rel="" target="">
+    <a class="nav-link" href="../quarto/Cluster-friendly-Snakemake.html" rel="" target="">
  <span class="menu-text">Cluster-friendly Snakemake</span></a>
   </li>  
 </ul>
@@ -117,11 +117,12 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
-  <li><a href="#goals" id="toc-goals" class="nav-link" data-scroll-target="#goals">Goals</a></li>
-  <li><a href="#applications-to-shotgun-metagenomics" id="toc-applications-to-shotgun-metagenomics" class="nav-link" data-scroll-target="#applications-to-shotgun-metagenomics">Applications to shotgun metagenomics</a></li>
-  <li><a href="#applications-to-16s-rdna-data" id="toc-applications-to-16s-rdna-data" class="nav-link" data-scroll-target="#applications-to-16s-rdna-data">Applications to 16S rDNA data</a></li>
-  <li><a href="#contributing-to-this-resource" id="toc-contributing-to-this-resource" class="nav-link" data-scroll-target="#contributing-to-this-resource">Contributing to this resource</a></li>
+  <li><a href="#getting-qiime2-and-snakemake-to-work-together" id="toc-getting-qiime2-and-snakemake-to-work-together" class="nav-link active" data-scroll-target="#getting-qiime2-and-snakemake-to-work-together">Getting Qiime2 and Snakemake to work together</a></li>
+  <li><a href="#example-workflow" id="toc-example-workflow" class="nav-link" data-scroll-target="#example-workflow">Example workflow</a></li>
+  <li><a href="#oh-no-someone-is-unhappy-what-do-i-do" id="toc-oh-no-someone-is-unhappy-what-do-i-do" class="nav-link" data-scroll-target="#oh-no-someone-is-unhappy-what-do-i-do">Oh no! Someone is unhappy, what do I do?</a>
+  <ul class="collapse">
+  <li><a href="#things-ive-had-to-learn-the-hard-way" id="toc-things-ive-had-to-learn-the-hard-way" class="nav-link" data-scroll-target="#things-ive-had-to-learn-the-hard-way">Things I’ve had to learn the hard way:</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -130,7 +131,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Effective use of Snakemake for workflow management on high performance compute clusters</h1>
+<h1 class="title">Qiime2 Applications</h1>
 </div>
 
 
@@ -145,47 +146,135 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<section id="overview" class="level1">
-<h1>Overview</h1>
-<p>Welcome! This is a learning resource on how to effectively use the workflow management tool Snakemake to make your life easier when processing large amounts of data on high performance compute clusters.</p>
+<section id="getting-qiime2-and-snakemake-to-work-together" class="level1">
+<h1>Getting Qiime2 and Snakemake to work together</h1>
+<p>Firstly, let’s make sure that you have <code>conda</code>, <code>mamba-forge</code>, and Qiime2 installed. Follow the installation instructions for the operating system of your local computer (or wherever you want to install Qiime2) which can be found <a href="https://docs.qiime2.org/2023.5/install/native/">here</a>.</p>
+<p>Once you have Qiime2 installed, activate your Qiime2 environment by running <code>conda activate qiime2-2023.5</code> before running:</p>
+<pre><code>pip install snakemake</code></pre>
+<p>You now have Snakemake installed in your Qiime2 environment and can start working on your pipeline!</p>
 </section>
-<section id="goals" class="level1">
-<h1>Goals</h1>
-<p>Hopefully, this resource will help you:</p>
+<section id="example-workflow" class="level1">
+<h1>Example workflow</h1>
+<pre class="snakemake"><code>rule all:
+    input:
+        "test_seqs.fasta",
+        "databases/sepp-refs-silva-128.qza",
+        "databases/silva-138-99-515-806-nb-classifier.qza",
+        "merged_table.qza"
+
+
+rule convert_to_fasta:
+    input:
+        "test_seqs.qza"
+    output:
+        "test_seqs.fasta"
+    conda:
+        # you need to reference your installed Qiime2 environment
+        # or you can activate that environment before calling snakemake 
+        # and you don't have to reference it here 
+        "qiime2-2023.5"
+    shell:
+        """
+        qiime tools export \
+            --input-path {input} \
+            --output-path ./ # this puts the output file in your current working directory
+        
+        mv dna-sequences.fasta {output}
+        """ 
+
+# you can reference online classifiers via wget 
+# so you don't need to have them downloaded already
+rule get_reference_databases:
+    output:
+        "databases/sepp-refs-silva-128.qza",
+        "databases/silva-138-99-515-806-nb-classifier.qza"
+    shell:
+        """
+        mkdir -p ./databases/ # make the directory if it doesn't exist, otherwise does nothing 
+        wget https://data.qiime2.org/2023.5/common/sepp-refs-silva-128.qza -P ./databases/
+        wget https://data.qiime2.org/2023.5/common/silva-138-99-515-806-nb-classifier.qza -P ./databases/
+        """
+
+rule merge_tables:
+    input:
+        table1="table1.qza",
+        table2="table2.qza"
+    output:
+        merged_table="merged_table.qza"
+    conda:
+        "qiime2-2023.5"
+    shell:
+        """
+        qiime feature-table merge \
+            --i-tables {input.table1} \
+            --i-tables {input.table2} \
+            --o-merged-table {output.merged_table}
+        """</code></pre>
+</section>
+<section id="oh-no-someone-is-unhappy-what-do-i-do" class="level1">
+<h1>Oh no! Someone is unhappy, what do I do?</h1>
+<p>Both Qiime2 and Snakemake are notoriously known for being picky about the little things (i.e.&nbsp;did you have an extra space that you forgot about after one of your commands and now you have a really unhelpful error message?) and sometimes the combination of the two can be incredibly frustrating.</p>
+<section id="things-ive-had-to-learn-the-hard-way" class="level2">
+<h2 class="anchored" data-anchor-id="things-ive-had-to-learn-the-hard-way">Things I’ve had to learn the hard way:</h2>
 <ol type="1">
-<li>Understand why workflow management tools are useful</li>
-<li>Create generalizable workflows with Snakemake</li>
-<li>Create reproducible workflows with Snakemake</li>
-<li>Create Snakemake workflows that run on compute clusters in an efficient manner (parallelized job submission and resource management)</li>
+<li>Anytime you call a Qiime2 command that outputs a directory of files (like <code>qiime diversity core-metrics-phylogenetic</code>), Qiime and Snakemake get mad at each other because Snakemake creates the output directory for Qiime. Qiime will then give you an error about how the output directory already exists (because Snakemake created it first).</li>
 </ol>
-</section>
-<section id="applications-to-shotgun-metagenomics" class="level1">
-<h1>Applications to shotgun metagenomics</h1>
-<p>Some examples will be focused on dealing with high-throughput sequencing data, such as metagenomics, since this is what I (and the original audience of this resource) work with on a daily basis. However, the contents and principles still apply to other data types.</p>
-<p>A primer on shotgun metagenomic data:</p>
-<ul>
-<li>The <a href="https://en.wikipedia.org/wiki/FASTQ_format">Fastq format</a> is how we store sequencing data. It’s a (sometimes compressed) text file with the genome sequence and quality of the sequence.</li>
-<li>If any of these concepts are unfamiliar to your, or if they spark an interest in working with metagenomic data:
-<ul>
-<li>Thomas Sharpton has written <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4059276/">An introduction to the analysis of shotgun metagenomic data</a>, which is a nice overview of many data processing steps.</li>
-<li>Additionally, the <a href="https://www.metagenomics.wiki/tools/short-read">Metagenomics Wiki</a> explains many of the tools, as well as how to use them.</li>
-</ul></li>
-</ul>
-</section>
-<section id="applications-to-16s-rdna-data" class="level1">
-<h1>Applications to 16S rDNA data</h1>
-<p>Other examples may be based on the analysis of 16S rDNA sequencing data which is commonly performed for microbiome profiling and is what the other contributor to this resource works with on a daily basis. Once again, don’t fret if you’ve never encountered 16S rDNA data, the basic principles of Snakemake can be applied in a variety of situations.</p>
-<p>A brief background on 16S rDNA data:</p>
-<ul>
-<li>Like shotgun metagenomics, the sequencing data is stored in <a href="https://en.wikipedia.org/wiki/FASTQ_format">Fastq format</a> as a compressed file.</li>
-<li>These fastq.gz files are then put into microbiome profiling programs such as <a href="https://qiime2.org/">Qiime2</a> or <a href="https://mothur.org/">mothur</a>.</li>
-</ul>
-</section>
-<section id="contributing-to-this-resource" class="level1">
-<h1>Contributing to this resource</h1>
-<p>If you have questions or suggestions, feel free to open an issue or pull request on the <a href="https://github.com/sterrettJD/Effective-Snakemake-HPC/">GitHub repo</a> for this site :)</p>
+<p>Instead, you need to specify every single output file that would be in that directory in the Qiime command itself instead of just the output directory. For example:</p>
+<pre class="snakemake"><code>rule core_metrics_analysis:
+    input:
+        TREE="tree.qza",
+        TABLE="tax_filt_actual.qza",
+        METADATA="metadata.tsv"
+    output:
+        BCDM="bray_curtis_distance_matrix.qza",
+        BCEMP="bray_curtis_emperor.qzv",
+        BCPCOA="bray_curtis_pcoa_results.qza",
+        EVEN="evenness_vector.qza",
+        FAITH="faith_pd_vector.qza",
+        JDM="jaccard_distance_matrix.qza",
+        JEMP="jaccard_emperor.qzv",
+        JPCOA="jaccard_pcoa_results.qza",
+        OF="observed_features_vector.qza",
+        RAREFIED="rarefied_table.qza",
+        SHANNON="shannon_vector.qza",
+        UUDM="unweighted_unifrac_distance_matrix.qza",
+        UUEMP="unweighted_unifrac_emperor.qzv",
+        UUPCOA="unweighted_unifrac_pcoa_results.qza",
+        WUDM="weighted_unifrac_distance_matrix.qza",
+        WUEMP="weighted_unifrac_emperor.qzv",
+        WUPCOA="weighted_unifrac_pcoa_results.qza"
+    conda:
+        "qiime2-2023.5"
+    params:
+        sampling_depth=10000
+    shell:
+        """
+        qiime diversity core-metrics-phylogenetic \
+            --i-phylogeny {input.TREE} \
+            --i-table {input.TABLE} \
+            --p-sampling-depth {params.sampling_depth} \
+            --m-metadata-file {input.METADATA} \
+            --o-rarefied-table {output.RAREFIED} \
+            --o-faith-pd-vector {output.FAITH} \
+            --o-observed-features-vector {output.OF} \
+            --o-shannon-vector {output.SHANNON} \
+            --o-evenness-vector {output.EVEN} \
+            --o-unweighted-unifrac-distance-matrix {output.UUDM} \
+            --o-weighted-unifrac-distance-matrix {output.WUDM} \
+            --o-jaccard-distance-matrix {output.JDM} \
+            --o-bray-curtis-distance-matrix {output.BCDM} \
+            --o-unweighted-unifrac-pcoa-results {output.UUPCOA} \
+            --o-weighted-unifrac-pcoa-results {output.WUPCOA} \
+            --o-jaccard-pcoa-results {output.JPCOA} \
+            --o-bray-curtis-pcoa-results {output.BCPCOA} \
+            --o-unweighted-unifrac-emperor {output.UUEMP} \
+            --o-weighted-unifrac-emperor {output.WUEMP} \
+            --o-jaccard-emperor {output.JEMP} \
+            --o-bray-curtis-emperor {output.BCEMP}
+        """</code></pre>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

@@ -131,6 +131,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Snakemake Essentials</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../quarto/Qiime2-Applications.html" rel="" target="">
+ <span class="menu-text">Qiime2 Applications</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../quarto/Cluster-friendly-Snakemake.html" rel="" target="">
  <span class="menu-text">Cluster-friendly Snakemake</span></a>
   </li>  
@@ -205,6 +209,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>How do I get myself one of these snakemakers? (Installation)</h1>
 <p>Installation instructions can be found on the Snakemake documentation page <a href="https://snakemake.readthedocs.io/en/stable/getting_started/installation.html">here</a>. In short, you want to install <code>conda</code> and <code>mamba-forge</code>, then run:</p>
 <pre><code>mamba create -c conda-forge -c bioconda -n snakemake_env snakemake</code></pre>
+<p>Alternatively, if you want to install Snakemake in an environment you already have set up, first activate that environment, then run:</p>
+<pre><code>pip install snakemake</code></pre>
+<p>This is especially important if you will be using more than one conda environment in your pipeline.</p>
 </section>
 <section id="running-snakemake" class="level1">
 <h1>Running Snakemake</h1>
@@ -236,7 +243,7 @@ rule run_multiQC:
 <section id="what-is-rule-all" class="level2">
 <h2 class="anchored" data-anchor-id="what-is-rule-all">What is “rule all”?</h2>
 <p>At this point, you may be asking “Wait! You said I should have a rule for each step! What’s this <code>rule all</code> mess??”</p>
-<p><code>rule all</code> is how we specify the output files we want. We specify our target files using the input to <code>rule all</code>. In a scientific case, consider these the input to the paper you’ll write from your analysis.</p>
+<p><code>rule all</code> is how we specify the output files we want, and it’s located at the very top of your snakefile. You can specify target files (pipeline endpoints) using the input to <code>rule all</code>. In a scientific case, consider these files to be the input to the paper you’ll write from your analysis.</p>
 <p>Snakemake is tracking what rules need to be run in order to generate the inputs for other rules, so it will track that - <code>rule run_multiQC</code>’s outputs -&gt; <code>rule all</code>’s inputs - <code>rule run_fastQC</code>’s outputs -&gt; <code>rule run_multiQC</code>’s inputs - <code>rule trim_fastq</code>’s outputs -&gt; <code>rule run_fastQC</code>’s inputs</p>
 <p>Therefore, it knows that in order to have the final files, it will use <code>rule trim_fastq</code> -&gt; <code>rule run_fastQC</code> -&gt; <code>rule run_multiQC</code> -&gt; <code>rule all</code></p>
 <div class="cell">
@@ -277,7 +284,7 @@ rule run_multiQC:
 </section>
 <section id="inputs-and-outputs" class="level2">
 <h2 class="anchored" data-anchor-id="inputs-and-outputs">Inputs and outputs</h2>
-<p>Snakemake traces the inputs and outputs for each rule to know what rules need to be run (and what order to run them in). These are specified very explicitly in the rule, using <code>input:</code> and <code>output:</code>, followed by and indented, comma-separated list, with one entry per line. These can also be named in the list. Another great attribute of snakemake is that these can be referenced in the command it runs.</p>
+<p>Snakemake traces the inputs and outputs for each rule to know what rules need to be run (and what order to run them in). These are specified very explicitly in the rule, using <code>input:</code> and <code>output:</code>, followed by an indented, comma-separated list, with one entry per line. These can also be named in the list. Another great attribute of Snakemake is that these can be referenced in the command it runs.</p>
 <section id="examples" class="level3">
 <h3 class="anchored" data-anchor-id="examples">Examples</h3>
 <section id="input-1-output" class="level4">
@@ -390,8 +397,8 @@ rule zip_trimmed:
 <h2 class="anchored" data-anchor-id="about-wildcards">About wildcards</h2>
 <p>Wildcards are a big part of how we can expand and generalize how our snakemake pipeline works. Consider a wildcards to be a list of values for which you want to run a snakemake rule multiple times. This is a bit like a <code>for</code> loop:</p>
 <div class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> value <span class="kw">in</span> wildcards: </span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    run rule...</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> value <span class="kw">in</span> wildcards: </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    run rule...</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="syntax" class="level2">
