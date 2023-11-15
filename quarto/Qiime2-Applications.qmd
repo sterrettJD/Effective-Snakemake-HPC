@@ -76,9 +76,39 @@ rule merge_tables:
 Both Qiime2 and Snakemake are notoriously known for being picky about the little things (i.e. did you have an extra space that you forgot about after one of your commands and now you have a really unhelpful error message?) and sometimes the combination of the two can be incredibly frustrating.
 
 ## Things I've had to learn the hard way:
-1. Anytime you call a Qiime2 command that outputs a directory of files (like `qiime diversity core-metrics-phylogenetic`), Qiime and Snakemake get mad at each other because Snakemake creates the output directory for Qiime. Qiime will then give you an error about how the output directory already exists (because Snakemake created it first).
+1. Anytime you call a Qiime2 command that outputs a directory of files (like `qiime diversity core-metrics-phylogenetic`), Qiime and Snakemake get mad at each other because Snakemake creates the output directory before Qiime. Qiime will then give you an error about how the output directory already exists (because Snakemake created it first).
 
-Instead, you need to specify every single output file that would be in that directory in the Qiime command itself instead of just the output directory. For example:
+Instead, you need to specify that the output you're generating in your shell is an entire directory by using `output = directory("directory_name")`. For example:
+
+```snakemake
+rule all:
+    input:
+        # can reference output directory like so here
+        "core_metrics_directory"
+
+
+rule core_metrics_analysis:
+    input:
+        TREE="tree.qza",
+        TABLE="tax_filt_actual.qza",
+        METADATA="metadata.tsv"
+    output:
+        OUTPUT_DIR=directory("core_metrics_directory")
+    params:
+        sampling_depth=10000
+    shell:
+        """
+        qiime diversity core-metrics-phylogenetic \
+            --i-phylogeny {input.TREE} \
+            --i-table {input.TABLE} \
+            --p-sampling-depth {params.sampling_depth} \
+            --m-metadata-file {input.METADATA} \
+            --output-dir {output} 
+        """
+
+```
+
+I used to list every single output file that would be in that directory in the Qiime command itself instead of just the output directory. This also works but it get's a bit annoying after a while, especially if the output directory being generated has file names that change with each run. For example:
    
 ```snakemake
 rule core_metrics_analysis:
