@@ -2,9 +2,7 @@
 title: "Elaborating rules"
 ---
 
-# What else can go in a rule?
-
-## Params
+# Params
 
 We've covered how to provide inputs and outputs for a rule, but we can actually provide anything we want as parameters of a rule. These rule params can be accessed with curly brackets just like we access inputs and outputs. For example:
 
@@ -22,7 +20,7 @@ rule count_ducks:
 ```
 This would print "The 2 ducks laid 4 eggs!" to the output file, filling the params into the shell command, like it does with `{output}`. 
 
-## Threads
+# Threads
 For parallelizable jobs, we can pass threads directly to rules as well. In your rule, you can then access your number of threads with curly brackets (yet again). Here is an example (assuming we have 8 separate locations to count ducks at):
 
 ``` snakemake
@@ -43,3 +41,59 @@ However, providing params and threads as components of the rule provides two mai
 
   1. It allows us to also start drawing these variables from config files, which we'll get into on the next page. 
   2. It increases readability. You no longer need to sift through your code to figure out which exact parameter you provided; this way, you can look at the rule (or ideally your config file), and it should jump out at you.
+  
+# Conda environments
+A similar syntax can be used to specify conda environments for each rule. You can pass a conda environment in one of three ways: 
+
+ 1. `conda: "name_of_environment"`
+ 2. `conda: "path/to/environment"`
+ 3. `conda: "environment_specs.yaml"`, where the `.yaml` file contains the requirements for setting up a conda environment. 
+
+## Using environment name or path (not recommended)
+
+If you have already built the conda environment that you want to use, you can provide either the name or filepath for that directory. Sometimes, filepaths are generally more robust than names, but neither are particularly portable across machines.
+
+The below output from `conda env list` shows the possibility of four environments that could me passed to snakemake.
+```
+conda env list
+# conda environments:
+#
+base                     /Users/<username>/mambaforge
+HoMi                     /Users/<username>/mambaforge/envs/HoMi
+                         /Users/<username>/anaconda3/envs/Unnamed_env
+```
+
+From these environments, we could pass any of the following to a rule: 
+
+ - `conda: "base"` OR `conda: "/Users/<username>/mambaforge"`
+ - `conda: "HoMi"` OR `conda: "/Users/<username>/mambaforge/envs/HoMi"`
+ - `conda: "/Users/<username>/anaconda3/envs/Unnamed_env"`. There is no name version of this environment. 
+ 
+ For the HoMi environment, this could look like such:
+ 
+ ``` snakemake
+ 
+ rule run_HoMi:
+    output:
+        "HoMi.out"
+    conda: "HoMi" # or conda: "/Users/<username>/mambaforge/envs/HoMi"
+    shell:
+        """
+        HoMi.py -o {output}
+        """
+ ```
+ 
+Not all environments can be accessed by name, which can occur if conda settings have changed. For example, changing from using anaconda to mambaforge could cause conda to stop recognizing names for the anaconda environments. Due to this, I recommend passing conda environment paths instead of names. However, the YAML approach is more robust and portable, so I'd recommend that over either names or filepaths.
+
+## Using conda environment YAML (recommended)
+Here is an example of the conda environment yaml syntax:
+``` snakemake
+rule count_ducks_in_specific_environment:
+    output: 
+        "ducks_file.txt"
+    conda: "duck_counting.yaml"
+    shell:
+        """
+        count_yer_ducks.py > {output}
+        """
+```
