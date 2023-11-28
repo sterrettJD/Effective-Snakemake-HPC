@@ -1,0 +1,20 @@
+---
+title: "Elaborating rules"
+---
+
+# What else can go in a rule?
+
+We've covered how to provide inputs and outputs for a rule, but we can actually provide anything we want as parameters of a rule. These rule params can be accessed with curly brackets just like we access inputs and outputs. For example:
+
+``` snakemake
+rule count_ducks:
+    output: 
+        "ducks_file.txt"
+    params:
+        ducks=2,
+        eggs=4
+    shell:
+        """
+        echo "The {ducks} ducks laid {eggs} eggs!" > {output}
+        """
+```
