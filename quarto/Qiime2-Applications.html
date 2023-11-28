@@ -229,7 +229,7 @@ rule merge_tables:
 rule core_metrics_analysis:
     input:
         TREE="tree.qza",
-        TABLE="tax_filt_actual.qza",
+        TABLE="taxonomy_filtered.qza",
         METADATA="metadata.tsv"
     output:
         OUTPUT_DIR=directory("core_metrics_directory")
@@ -298,6 +298,10 @@ rule core_metrics_analysis:
             --o-jaccard-emperor {output.JEMP} \
             --o-bray-curtis-emperor {output.BCEMP}
         """</code></pre>
+<ol start="2" type="1">
+<li>Since many of the steps in a Qiime2 workflow are interactive, put each step in it’s own Snakemake rule.</li>
+</ol>
+<p>I originally thought that it would be more streamlined to put all of the Qiime2 workflow code into a regular bash script and to reference that in my Snakemake rules (it would certainly make my snakefile shorter). However, since many of the outputs in the Qiime2 workflow need to be referenced to inform the parameters on downstream steps, leaving each step in it’s own rule allows you to easily check generated outputs and adjust subsequent parameters. This is also particularly helpful when you need to re-run your workflow (as that inevitably happens) since Snakemake will only re-run rules that have been altered or are missing outputs so the super time-consuming Qiime2 steps will only be run once. If you had everything in a bash script, it would be re-run with your workflow every time, which is a lot of time and computational power that will slow down your analysis.</p>
 
 
 </section>

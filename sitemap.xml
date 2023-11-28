@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/index.html</loc>
-    <lastmod>2023-11-15T19:43:52.793Z</lastmod>
-  </url>
-  <url>
-    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Snakemake-Essentials.html</loc>
-    <lastmod>2023-11-15T19:43:52.197Z</lastmod>
-  </url>
-  <url>
     <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Qiime2-Applications.html</loc>
-    <lastmod>2023-11-15T19:43:45.617Z</lastmod>
-  </url>
-  <url>
-    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Cluster-friendly-Snakemake.html</loc>
-    <lastmod>2023-11-15T19:43:49.497Z</lastmod>
+    <lastmod>2023-11-28T22:21:16.688Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/About-Snakemake.html</loc>
-    <lastmod>2023-11-15T19:43:52.497Z</lastmod>
+    <lastmod>2023-11-28T22:21:13.560Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/index.html</loc>
+    <lastmod>2023-11-28T22:21:08.596Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Snakemake-Essentials.html</loc>
+    <lastmod>2023-11-28T22:21:13.240Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Cluster-friendly-Snakemake.html</loc>
+    <lastmod>2023-11-28T22:21:16.188Z</lastmod>
   </url>
 </urlset>
