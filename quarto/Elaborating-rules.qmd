@@ -88,12 +88,29 @@ Not all environments can be accessed by name, which can occur if conda settings 
 ## Using conda environment YAML (recommended)
 Here is an example of the conda environment yaml syntax:
 ``` snakemake
-rule count_ducks_in_specific_environment:
-    output: 
-        "ducks_file.txt"
-    conda: "duck_counting.yaml"
-    shell:
-        """
-        count_yer_ducks.py > {output}
-        """
+rule run_fastqc:
+    input:
+        "{sample}.trimmed.{read}.fq"
+  output:
+        "{sample}.trimmed.{read}_fastqc.zip"
+  conda: "conda_envs/fastqc.yaml"
+  shell:
+    """
+    fastqc {input} -o .
+    """
 ```
+
+In this case, `conda_envs/fastqc.yaml` should be a `.yaml` formatted file with the conda environment's dependencies. Here is an example:
+``` yaml
+name: fastqc_environment
+channels:
+  - biobakery
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - multiqc
+  - fastqc
+```
+
+When provided an environment YAML, Snakemake will create it in the directory `.snakemake/conda/$hash`, where `$hash` is a hash that Snakemake has given the conda environment.
