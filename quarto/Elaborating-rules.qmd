@@ -4,6 +4,8 @@ title: "Elaborating rules"
 
 # What else can go in a rule?
 
+## Params
+
 We've covered how to provide inputs and outputs for a rule, but we can actually provide anything we want as parameters of a rule. These rule params can be accessed with curly brackets just like we access inputs and outputs. For example:
 
 ``` snakemake
@@ -15,6 +17,29 @@ rule count_ducks:
         eggs=4
     shell:
         """
-        echo "The {ducks} ducks laid {eggs} eggs!" > {output}
+        echo "The {params.ducks} ducks laid {params.eggs} eggs!" > {output}
         """
 ```
+This would print "The 2 ducks laid 4 eggs!" to the output file, filling the params into the shell command, like it does with `{output}`. 
+
+## Threads
+For parallelizable jobs, we can pass threads directly to rules as well. In your rule, you can then access your number of threads with curly brackets (yet again). Here is an example (assuming we have 8 separate locations to count ducks at):
+
+``` snakemake
+rule count_ducks_in_parallel:
+    output: 
+        "ducks_file.txt"
+    threads: 8
+    shell:
+        """
+        count_ducks_in_parallel.py --threads {threads} > {output}
+        """
+```
+
+## Why would I ever do it this way?
+You may be wondering, "can't I just hard code this in the shell command?" You absolutely could. It would even save you a few lines of code in these examples. 
+
+However, providing params and threads as components of the rule provides two main benefits:
+
+  1. It allows us to also start drawing these variables from config files, which we'll get into on the next page. 
+  2. It increases readability. You no longer need to sift through your code to figure out which exact parameter you provided; this way, you can look at the rule (or ideally your config file), and it should jump out at you.
