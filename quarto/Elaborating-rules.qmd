@@ -1,0 +1,154 @@
+---
+title: "Elaborating rules"
+---
+
+# Params
+
+We've covered how to provide inputs and outputs for a rule, but we can actually provide anything we want as parameters of a rule. These rule params can be accessed with curly brackets just like we access inputs and outputs. For example:
+
+``` snakemake
+rule count_ducks:
+    output: 
+        "ducks_file.txt"
+    params:
+        ducks=2,
+        eggs=4
+    shell:
+        """
+        echo "The {params.ducks} ducks laid {params.eggs} eggs!" > {output}
+        """
+```
+This would print "The 2 ducks laid 4 eggs!" to the output file, filling the params into the shell command, like it does with `{output}`. 
+
+# Threads
+For parallelizable jobs, we can pass threads directly to rules as well. In your rule, you can then access your number of threads with curly brackets (yet again). Here is an example (assuming we have 8 separate locations to count ducks at):
+
+``` snakemake
+rule count_ducks_in_parallel:
+    output: 
+        "ducks_file.txt"
+    threads: 8
+    shell:
+        """
+        count_ducks_in_parallel.py --threads {threads} > {output}
+        """
+```
+
+## Why would I ever do it this way?
+You may be wondering, "can't I just hard code this in the shell command?" You absolutely could. It would even save you a few lines of code in these examples. 
+
+However, providing params and threads as components of the rule provides two main benefits:
+
+  1. It allows us to also start drawing these variables from config files, which we'll get into on the next page. 
+  2. It increases readability. You no longer need to sift through your code to figure out which exact parameter you provided; this way, you can look at the rule (or ideally your config file), and it should jump out at you.
+  
+# Conda environments
+A similar syntax can be used to specify conda environments for each rule. You can pass a conda environment in one of three ways: 
+
+ 1. `conda: "name_of_environment"`
+ 2. `conda: "path/to/environment"`
+ 3. `conda: "environment_specs.yaml"`, where the `.yaml` file contains the requirements for setting up a conda environment. 
+ 
+ 
+When passing conda environments for rules, if you provide the flag `--use-conda` when running Snakemake (e.g., `snakemake --cores 1 --use-conda`), Snakemake will run the specified rules in that specific conda environment.
+
+## Using environment name or path (simplest but not recommended)
+
+If you have already built the conda environment that you want to use, you can provide either the name or filepath for that directory. Sometimes, filepaths are generally more robust than names, but neither are particularly portable across machines.
+
+The below output from `conda env list` shows the possibility of four environments that could me passed to snakemake.
+```
+conda env list
+# conda environments:
+#
+base                     /Users/<username>/mambaforge
+HoMi                     /Users/<username>/mambaforge/envs/HoMi
+                         /Users/<username>/anaconda3/envs/Unnamed_env
+```
+
+From these environments, we could pass any of the following to a rule: 
+
+ - `conda: "base"` OR `conda: "/Users/<username>/mambaforge"`
+ - `conda: "HoMi"` OR `conda: "/Users/<username>/mambaforge/envs/HoMi"`
+ - `conda: "/Users/<username>/anaconda3/envs/Unnamed_env"`. There is no name version of this environment. 
+ 
+ For the HoMi environment, this could look like such:
+ 
+ ``` snakemake
+ 
+ rule run_HoMi:
+    output:
+        "HoMi.out"
+    conda: "HoMi" # or conda: "/Users/<username>/mambaforge/envs/HoMi"
+    shell:
+        """
+        HoMi.py -o {output}
+        """
+ ```
+ 
+Not all environments can be accessed by name, which can occur if conda settings have changed. For example, changing from using anaconda to mambaforge could cause conda to stop recognizing names for the anaconda environments. Due to this, I recommend passing conda environment paths instead of names. However, the YAML approach is more robust and portable, so I'd recommend that over either names or filepaths.
+
+## Using conda environment YAML (recommended)
+Here is an example of the conda environment yaml syntax:
+``` snakemake
+rule run_fastqc:
+  input:
+    "{sample}.trimmed.{read}.fq"
+  output:
+    "{sample}.trimmed.{read}_fastqc.zip"
+  conda: "conda_envs/fastqc.yaml"
+  shell:
+    """
+    fastqc {input} -o .
+    """
+```
+
+In this case, `conda_envs/fastqc.yaml` should be a `.yaml` formatted file with the conda environment's dependencies. Here is an example:
+``` yaml
+name: fastqc_environment
+channels:
+  - biobakery
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - multiqc
+  - fastqc
+```
+
+When provided an environment YAML, Snakemake will create it in the directory `.snakemake/conda/$hash`, where `$hash` is a hash that Snakemake has given the conda environment. I recommend modularizing your conda environments as much as possible. Having unique conda environments for distinct portions of your workflow can avoid dependency issues.
+
+### Creating YAMLs from existing environments
+You can easily create `.yaml` files for existing environments by using the command `conda env export -n <env_name> --from-history > <env_name>.yaml`, then by manually adding any packages installed via pip. Without the `--from-history` flag, conda will export the exact package version hashes, which will hinder portability of the environment across different computers, as these versions are operating system specific. You can also add some version numbers to packages in these `.yaml` files, such `fastqc=0.12.1`. More information can be found [here](https://carpentries-incubator.github.io/introduction-to-conda-for-data-scientists/04-sharing-environments/index.html).
+
+
+# Resources
+Another way you can elaborate on rules is through specifying resource requirements. Specifying resources has a similar syntax to specifying params, where resources are provided as a subsection of the rule. This isn't always useful on a personal computer, but it starts to become very important when we're working on a computer cluster. Here is an example:
+
+``` snakemake
+rule run_fastqc:
+  input:
+    "{sample}.trimmed.{read}.fq"
+  output:
+    "{sample}.trimmed.{read}_fastqc.zip"
+  conda: "conda_envs/fastqc.yaml"
+  resources:
+    partition="short",
+    mem_mb=int(2*1000), # MB, or 2 GB
+    runtime=int(2*60), # min, or 2 hours
+    slurm="<slurm extra parameters>"
+  threads: 1
+  shell:
+    """
+    fastqc {input} -o .
+    """
+```
+
+## Limiting resources
+When running Snakemake locally, specifying resources can be useful for making sure Snakemake doesn't overrun the resources available on your computer. On the command line, a flag for maximum resources used can be passed. For example, if you wanted to limit Snakemake to 8 GB total memory, you could run it using the command `snakemake --cores 1 --resources mem_mb=8000`. If you needed to run the `run_fastq` rule above for 50 samples but passed 8 GB as the max memory footprint, Snakemake would make sure no more than 4 samples were running at a time. 
+
+## Snakemake doesn't monitor resource usage
+Snakemake does not monitor real-time resource useage but instead just goes off of the benchmarks you provide it. If you say a rule needs 2 GB memory, but it actually uses 10 GB, Snakemake will not know or adjust how it is scheduling the rules. More information on resources can be found [here](https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#resources).
+
+## Resources are most useful for cluster integration
+Resources specifications become very useful when integrating Snakemake with a compute cluster with some sort of resource management system like Slurm. This is discussed in [Cluster-friendly Snakemake](Cluster-friendly-Snakemake.html), but a Slurm profile for Snakemake can look at the resource requirements for each rule and request that many resources when submitting batch job requests on the cluster. 
