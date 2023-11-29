@@ -48,8 +48,11 @@ A similar syntax can be used to specify conda environments for each rule. You ca
  1. `conda: "name_of_environment"`
  2. `conda: "path/to/environment"`
  3. `conda: "environment_specs.yaml"`, where the `.yaml` file contains the requirements for setting up a conda environment. 
+ 
+ 
+When passing conda environments for rules, if you provide the flag `--use-conda` when running Snakemake (e.g., `snakemake --cores 1 --use-conda`), Snakemake will run the specified rules in that specific conda environment.
 
-## Using environment name or path (not recommended)
+## Using environment name or path (simplest but not recommended)
 
 If you have already built the conda environment that you want to use, you can provide either the name or filepath for that directory. Sometimes, filepaths are generally more robust than names, but neither are particularly portable across machines.
 
@@ -113,4 +116,7 @@ dependencies:
   - fastqc
 ```
 
-When provided an environment YAML, Snakemake will create it in the directory `.snakemake/conda/$hash`, where `$hash` is a hash that Snakemake has given the conda environment.
+When provided an environment YAML, Snakemake will create it in the directory `.snakemake/conda/$hash`, where `$hash` is a hash that Snakemake has given the conda environment. I recommend modularizing your conda environments as much as possible. Having unique conda environments for distinct portions of your workflow can avoid dependency issues.
+
+### Creating YAMLs from existing environments
+You can easily create `.yaml` files for existing environments by using the command `conda env export -n <env_name> --from-history > <env_name>.yaml`, then by manually adding any packages installed via pip. Without the `--from-history` flag, conda will export the exact package version hashes, which will hinder portability of the environment across different computers, as these versions are operating system specific. You can also add some version numbers to packages in these `.yaml` files, such `fastqc=0.12.1`. More information can be found [here](https://carpentries-incubator.github.io/introduction-to-conda-for-data-scientists/04-sharing-environments/index.html).
