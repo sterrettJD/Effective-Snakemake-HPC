@@ -1,0 +1,52 @@
+---
+title: "Using R with Snakemake"
+---
+
+# Setting up R with Snakemake 
+Running R with Snakemake works beautifully and makes your life easier - if you've already gone through the pains of setting up your R to be compatible with the scripts you want to run. 
+
+## The Issue: 
+All of your R packages (called libraries in R once installed). If you're running Snakemake locally, it will use R and its packages already installed on your computer, so there's no problem. BUT if you're running Snakemake elsewhere, such as a super computer or any other computer that isn't yours, this becomes a massive issue. 
+
+### Here are a couple ways that we've gotten around it:
+**1. Creating an R script that you run first that tells R to install all the packages that you will need. JOHN**
+
+**2. Creating an R-specific conda environment, installing all needed packages into that environment, and referencing it in your snakefile.**
+    
+Installing your desired R packages through conda is a lot faster than if you were to install them via R (which seems semi counter-intuitive) and the process is fairly fool proof. You can set up your R environment in a `.yaml` file - similar to your other environments. For example:
+
+```yaml
+name: r_env
+channels:
+    - bioconda
+    - conda-forge
+    - anaconda
+    - r
+dependencies:
+    - pip
+    - r-base=> 4.0
+    - r-essentials
+    - r-qiime2r
+    - r-rstatix
+    - r-ggpubr
+    - r-cowplot
+    - r-ggh4x
+    - r-argparse
+    - pip:
+        - snakemake
+```
+
+You need to make sure that you're keeping track of all needed R packages and putting them in your `.yaml` file. I would also reccommend validating the proper channels and dependencies for the R packages that you need at the [Anaconda website](https://anaconda.org/anaconda/repo) by looking up the package and reading the conda installation instructions. Be warned that not all R packages can be installed through conda channels. 
+
+Once your `.yaml` file is set up, you can run:
+
+```
+conda env create -f r_env.yml
+```
+
+Et viola! Your R-specific conda environment has successfully been installed!
+
+# Running R scripts in Snakemake
+
+
+# Running R markdown scripts in Snakemake JOHN 

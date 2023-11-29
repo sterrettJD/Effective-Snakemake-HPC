@@ -21,6 +21,7 @@ website:
       - text: Applications
         menu: 
           - quarto/Qiime2-Applications.qmd
+          - quarto/Using-R-with-Snakemake.qmd
 
 
 format:
