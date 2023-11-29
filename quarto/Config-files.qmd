@@ -11,3 +11,27 @@ Config files in Snakemake workflows are used to store and manage configuration p
 Config files in Snakemake help us separate configuration details from the workflow script. This separation enhances portability, allowing workflows to be easily adapted to different environments. Config files contribute to reproducibility by capturing essential parameters, while also offering flexibility, maintainability, and a means to secure sensitive information such as file paths.
 
 Config files also enhance workflow readability and modifiability. For example, if you'd like to change the parameters for trimming sequencing reads, you can find those parameters more easily in the config file, compared to searching through the snakefile for the parameters.
+
+# Using a config file 
+## Passing a config file to Snakemake
+To run Snakemake with a config file, pass it after the flag `--config` in your Snakemake command, as such: `snakemake --cores 1 --config config.yaml`.
+
+## Format
+Config files should be YAML-formatted. Here is an example:
+``` yaml
+# Input data file
+input_file: data/input.txt
+
+# Output directory
+output_dir: results/
+
+# Parameters for a specific rule
+specific_rule_params:
+  param1: value1
+  param2: value2
+  
+# Number of threads to use for a specific rule
+specific_rule_threads: 4
+```
+
+## Snakefile
