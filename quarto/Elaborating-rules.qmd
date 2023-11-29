@@ -88,6 +88,7 @@ From these environments, we could pass any of the following to a rule:
  
 Not all environments can be accessed by name, which can occur if conda settings have changed. For example, changing from using anaconda to mambaforge could cause conda to stop recognizing names for the anaconda environments. Due to this, I recommend passing conda environment paths instead of names. However, the YAML approach is more robust and portable, so I'd recommend that over either names or filepaths.
 
+
 ## Using conda environment YAML (recommended)
 Here is an example of the conda environment yaml syntax:
 ``` snakemake
@@ -120,6 +121,45 @@ When provided an environment YAML, Snakemake will create it in the directory `.s
 
 ### Creating YAMLs from existing environments
 You can easily create `.yaml` files for existing environments by using the command `conda env export -n <env_name> --from-history > <env_name>.yaml`, then by manually adding any packages installed via pip. Without the `--from-history` flag, conda will export the exact package version hashes, which will hinder portability of the environment across different computers, as these versions are operating system specific. You can also add some version numbers to packages in these `.yaml` files, such `fastqc=0.12.1`. More information can be found [here](https://carpentries-incubator.github.io/introduction-to-conda-for-data-scientists/04-sharing-environments/index.html).
+
+
+## Combining use of conda environment name and YAML files
+
+You can use a combination of the two above techniques if your environments take a long time to install or have specific installation requirements that can't be put in the `.yaml` file. You can create `.yaml` files for your needed conda environments and then use those to create the environments prior to running your workflow. I like to put mine in a `bash` script with any needed installation requirements. For example:
+
+```bash
+#!/bin/bash
+
+set -e
+set -u
+set -o
+
+# qiime2 has specific installation requirements and will give you issues if you simply try to use the .yaml file
+echo "--------creating qiime environment"
+# make sure that the qiime installation that you have in here is for the proper software system
+# these instructions are for apple silicon (M1 and M2 chips)
+wget https://data.qiime2.org/distro/core/qiime2-2023.5-py38-osx-conda.yml
+CONDA_SUBDIR=osx-64 conda env create -n qiime2-2023.5 --file qiime2-2023.5-py38-osx-conda.yml
+conda config --env --set subdir osx-64
+rm qiime2-2023.5-py38-osx-conda.yml
+conda activate qiime2-2023.5
+pip install snakemake
+conda deactivate
+
+echo "--------creating R envrionment"
+conda env create -f r_env.yml
+
+echo "--------creating picrust environment"
+conda env create -f picrust2.yml
+```
+
+And then run the `bash` script via:
+
+```
+sh my_environments.sh
+```
+
+From there, you can reference the conda environment name or path in your Snakefile. Since these `.yaml` files can be used to create environments on any machine, this method adds portability and reproducibility while breaking up the process computationally and allows you to get around issues with specific installation requirements. However, if your conda environment `.yaml` files work just fine, I would reccommend sticking with that method.
 
 
 # Resources
