@@ -203,6 +203,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#creating-yamls-from-existing-environments" id="toc-creating-yamls-from-existing-environments" class="nav-link" data-scroll-target="#creating-yamls-from-existing-environments">Creating YAMLs from existing environments</a></li>
   </ul></li>
+  <li><a href="#combining-use-of-conda-environment-name-and-yaml-files" id="toc-combining-use-of-conda-environment-name-and-yaml-files" class="nav-link" data-scroll-target="#combining-use-of-conda-environment-name-and-yaml-files">Combining use of conda environment name and YAML files</a></li>
   </ul></li>
   <li><a href="#resources" id="toc-resources" class="nav-link" data-scroll-target="#resources">Resources</a>
   <ul class="collapse">
@@ -334,6 +335,36 @@ rule run_HoMi:
 <h3 class="anchored" data-anchor-id="creating-yamls-from-existing-environments">Creating YAMLs from existing environments</h3>
 <p>You can easily create <code>.yaml</code> files for existing environments by using the command <code>conda env export -n &lt;env_name&gt; --from-history &gt; &lt;env_name&gt;.yaml</code>, then by manually adding any packages installed via pip. Without the <code>--from-history</code> flag, conda will export the exact package version hashes, which will hinder portability of the environment across different computers, as these versions are operating system specific. You can also add some version numbers to packages in these <code>.yaml</code> files, such <code>fastqc=0.12.1</code>. More information can be found <a href="https://carpentries-incubator.github.io/introduction-to-conda-for-data-scientists/04-sharing-environments/index.html">here</a>.</p>
 </section>
+</section>
+<section id="combining-use-of-conda-environment-name-and-yaml-files" class="level2">
+<h2 class="anchored" data-anchor-id="combining-use-of-conda-environment-name-and-yaml-files">Combining use of conda environment name and YAML files</h2>
+<p>You can use a combination of the two above techniques if your environments take a long time to install or have specific installation requirements that can’t be put in the <code>.yaml</code> file. You can create <code>.yaml</code> files for your needed conda environments and then use those to create the environments prior to running your workflow. I like to put mine in a <code>bash</code> script with any needed installation requirements. For example:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-e</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-u</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-o</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># qiime2 has specific installation requirements and will give you issues if you simply try to use the .yaml file</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"--------creating qiime environment"</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># make sure that the qiime installation that you have in here is for the proper software system</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># these instructions are for apple silicon (M1 and M2 chips)</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> https://data.qiime2.org/distro/core/qiime2-2023.5-py38-osx-conda.yml</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="va">CONDA_SUBDIR</span><span class="op">=</span>osx-64 <span class="ex">conda</span> env create <span class="at">-n</span> qiime2-2023.5 <span class="at">--file</span> qiime2-2023.5-py38-osx-conda.yml</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> config <span class="at">--env</span> <span class="at">--set</span> subdir osx-64</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> qiime2-2023.5-py38-osx-conda.yml</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate qiime2-2023.5</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install snakemake</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> deactivate</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"--------creating R envrionment"</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env create <span class="at">-f</span> r_env.yml</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"--------creating picrust environment"</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env create <span class="at">-f</span> picrust2.yml</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And then run the <code>bash</code> script via:</p>
+<pre><code>sh my_environments.sh</code></pre>
+<p>From there, you can reference the conda environment name or path in your Snakefile. Since these <code>.yaml</code> files can be used to create environments on any machine, this method adds portability and reproducibility while breaking up the process computationally and allows you to get around issues with specific installation requirements. However, if your conda environment <code>.yaml</code> files work just fine, I would reccommend sticking with that method.</p>
 </section>
 </section>
 <section id="resources" class="level1">
