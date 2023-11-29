@@ -23,7 +23,7 @@ Config files should be YAML-formatted. Here is an example:
 input_file: data/input.txt
 
 # Output directory
-output_dir: results/
+output_file: data/processed_file.txt
 
 # Parameters for a specific rule
 specific_rule_params:
@@ -31,7 +31,35 @@ specific_rule_params:
   param2: value2
   
 # Number of threads to use for a specific rule
-specific_rule_threads: 4
+specific_rule_threads: 1
 ```
 
 ## Snakefile
+
+If the config filepath is passed to Snakemake, it will automatically be read into your snakefile as a dictionary object named `config`. The below example shows how you can use this config dictionary in your rules. I recommend not trying to access exact components of the config file inside your `shell` command (or `run` command), but instead making those components params that can be accessed more traditionally.
+
+``` snakemake
+rule all:
+    input:
+        config["output_file"]
+
+# Rule to process the input file
+rule specific_rule:
+    input:
+        config["input_file"]
+    output:
+        config["output_file"]
+    threads: config["specific_rule_threads"]
+    params:
+        param1=config["specific_rule_params"]["param1"],
+        param2=config["specific_rule_params"]["param2"]
+    shell:
+        """
+        cp {input} {output}
+        echo {params.param1} >> {output}
+        echo {params.param2} >> {output}
+        """
+```
+
+### Safely handling config params
+
