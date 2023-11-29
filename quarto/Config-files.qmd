@@ -1,0 +1,92 @@
+---
+title: "Using Config Files"
+---
+
+# What is a config file?
+
+Config files in Snakemake workflows are used to store and manage configuration parameters separately from the workflow script. Typically written in YAML format, these files contain key-value pairs representing various parameters such as file paths, resource requirements, and other settings that control the behavior of the workflow. 
+
+# Why do we use config files?
+
+Config files in Snakemake help us separate configuration details from the workflow script. This separation enhances portability, allowing workflows to be easily adapted to different environments. Config files contribute to reproducibility by capturing essential parameters, while also offering flexibility, maintainability, and a means to secure sensitive information such as file paths.
+
+Config files also enhance workflow readability and modifiability. For example, if you'd like to change the parameters for trimming sequencing reads, you can find those parameters more easily in the config file, compared to searching through the snakefile for the parameters.
+
+# Using a config file 
+## Passing a config file to Snakemake
+To run Snakemake with a config file, pass it after the flag `--config` in your Snakemake command, as such: `snakemake --cores 1 --config config.yaml`.
+
+## Format
+Config files should be YAML-formatted. Here is an example:
+``` yaml
+# Input data file
+input_file: data/input.txt
+
+# Output directory
+output_file: data/processed_file.txt
+
+# Parameters for a specific rule
+specific_rule_params:
+  param1: value1
+  param2: value2
+  
+# Number of threads to use for a specific rule
+specific_rule_threads: 1
+```
+
+## Snakefile
+
+If the config filepath is passed to Snakemake, it will automatically be read into your snakefile as a dictionary object named `config`. The below example shows how you can use this config dictionary in your rules. I recommend not trying to access exact components of the config file inside your `shell` command (or `run` command), but instead making those components params that can be accessed more traditionally.
+
+``` snakemake
+rule all:
+    input:
+        config["output_file"]
+
+# Rule to process the input file
+rule specific_rule:
+    input:
+        config["input_file"]
+    output:
+        config["output_file"]
+    threads: config["specific_rule_threads"]
+    params:
+        param1=config["specific_rule_params"]["param1"],
+        param2=config["specific_rule_params"]["param2"]
+    shell:
+        """
+        cp {input} {output}
+        echo {params.param1} >> {output}
+        echo {params.param2} >> {output}
+        """
+```
+
+### Safely handling config params
+The way that the config dictionary's values are accessed above works, but it isn't necessarily the most user-friendly way to access the values. I'm not saying this has happened to me, but if a jealous ex-lover sneaks into your house on a Tuesday night and deletes parameters out of your config file, the previously shown dictionary value accession method will result in errors in your Snakemake pipeline. For someone unfamiliar with the pipeline, it may be very difficult to track down that these errors are coming from a missing parameter in the config file.
+
+In some cases, it can be better to use the `dict.get()` syntax, or even to write helper functions to sanitize your config. With `dict.get()`, you can set default values. Using `config.get("specific_rule_threads", default=1)` would look for `specific_rule_threads` in your config, but if it doesn't exist, Snakemake would default to using 1 thread for this rule. In contrast, `config["specific_rule_threads"]` would raise a `KeyError` if `specific_rule_threads` is not in the config.
+
+You may imagine some cases where defaulting to a set value could be preferable. For example, if you want a rule to default to using 1 thread, unless a user specificies otherwise, the `get()` syntax could be great. However, if the entire pipeline should error if a user doesn't provide an input filepath, the `get()` syntax may not be the ideal solution. If a pipeline should error if a user doesn't provide a certain parameter in the config, this is best handled with an informative helper function to sanitize. Below is an simple example:
+
+```{python}
+#| eval: false
+
+def check_keys_exist(config, keys):
+    """
+    Parameters:
+    - dictionary (dict): The config dictionary to check.
+    - keys (set): The set of keys to check for.
+
+    Returns:
+    - bool: True if all keys are present
+    
+    If any key is missing, a specific ValueError will be raised
+    """
+    for key in keys:
+        if key not in config:
+            raise ValueError(f"{key} is missing from your config file. Please ensure this parameter is present")
+    
+    return True
+```
+
+Additionally, you may need to check certain aspects of the config parameters. Did the user add quotes around the values? Are there underscores in a parameter that should have dashes instead. These are things to think about if other people will be using your Snakemake pipeline.

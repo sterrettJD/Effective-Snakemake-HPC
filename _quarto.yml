@@ -7,11 +7,20 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - quarto/About-Snakemake.qmd
-      - quarto/Snakemake-Essentials.qmd
-      - quarto/Elaborating-rules.qmd
-      - quarto/Cluster-friendly-Snakemake.qmd
-      - quarto/Qiime2-Applications.qmd
+      - text: Snakemake Basics
+        menu: 
+          - quarto/About-Snakemake.qmd
+          - quarto/Snakemake-Essentials.qmd
+      - text: More Snakemake
+        menu: 
+          - quarto/Elaborating-rules.qmd
+          - quarto/Config-files.qmd
+      - text: Cluster Integration
+        menu:
+          - quarto/Cluster-friendly-Snakemake.qmd
+      - text: Applications
+        menu: 
+          - quarto/Qiime2-Applications.qmd
 
 
 format:
