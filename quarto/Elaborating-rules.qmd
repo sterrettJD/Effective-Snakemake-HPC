@@ -92,10 +92,10 @@ Not all environments can be accessed by name, which can occur if conda settings 
 Here is an example of the conda environment yaml syntax:
 ``` snakemake
 rule run_fastqc:
-    input:
-        "{sample}.trimmed.{read}.fq"
+  input:
+    "{sample}.trimmed.{read}.fq"
   output:
-        "{sample}.trimmed.{read}_fastqc.zip"
+    "{sample}.trimmed.{read}_fastqc.zip"
   conda: "conda_envs/fastqc.yaml"
   shell:
     """
@@ -120,3 +120,35 @@ When provided an environment YAML, Snakemake will create it in the directory `.s
 
 ### Creating YAMLs from existing environments
 You can easily create `.yaml` files for existing environments by using the command `conda env export -n <env_name> --from-history > <env_name>.yaml`, then by manually adding any packages installed via pip. Without the `--from-history` flag, conda will export the exact package version hashes, which will hinder portability of the environment across different computers, as these versions are operating system specific. You can also add some version numbers to packages in these `.yaml` files, such `fastqc=0.12.1`. More information can be found [here](https://carpentries-incubator.github.io/introduction-to-conda-for-data-scientists/04-sharing-environments/index.html).
+
+
+# Resources
+Another way you can elaborate on rules is through specifying resource requirements. Specifying resources has a similar syntax to specifying params, where resources are provided as a subsection of the rule. This isn't always useful on a personal computer, but it starts to become very important when we're working on a computer cluster. Here is an example:
+
+``` snakemake
+rule run_fastqc:
+  input:
+    "{sample}.trimmed.{read}.fq"
+  output:
+    "{sample}.trimmed.{read}_fastqc.zip"
+  conda: "conda_envs/fastqc.yaml"
+  resources:
+    partition="short",
+    mem_mb=int(2*1000), # MB, or 2 GB
+    runtime=int(2*60), # min, or 2 hours
+    slurm="<slurm extra parameters>"
+  threads: 1
+  shell:
+    """
+    fastqc {input} -o .
+    """
+```
+
+## Limiting resources
+When running Snakemake locally, specifying resources can be useful for making sure Snakemake doesn't overrun the resources available on your computer. On the command line, a flag for maximum resources used can be passed. For example, if you wanted to limit Snakemake to 8 GB total memory, you could run it using the command `snakemake --cores 1 --resources mem_mb=8000`. If you needed to run the `run_fastq` rule above for 50 samples but passed 8 GB as the max memory footprint, Snakemake would make sure no more than 4 samples were running at a time. 
+
+## Snakemake doesn't monitor resource usage
+Snakemake does not monitor real-time resource useage but instead just goes off of the benchmarks you provide it. If you say a rule needs 2 GB memory, but it actually uses 10 GB, Snakemake will not know or adjust how it is scheduling the rules. More information on resources can be found [here](https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#resources).
+
+## Resources are most useful for cluster integration
+Resources specifications become very useful when integrating Snakemake with a compute cluster with some sort of resource management system like Slurm. This is discussed in [Cluster-friendly Snakemake](Cluster-friendly-Snakemake.html), but a Slurm profile for Snakemake can look at the resource requirements for each rule and request that many resources when submitting batch job requests on the cluster. 
