@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Effective Snakemake on Computer Clusters - Elaborating rules</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Effective Snakemake on Computer Clusters</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../quarto/About-Snakemake.html" rel="" target="">
+ <span class="menu-text">About Snakemake</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../quarto/Snakemake-Essentials.html" rel="" target="">
+ <span class="menu-text">Snakemake Essentials</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../quarto/Elaborating-rules.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Elaborating rules</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../quarto/Cluster-friendly-Snakemake.html" rel="" target="">
+ <span class="menu-text">Cluster-friendly Snakemake</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../quarto/Qiime2-Applications.html" rel="" target="">
+ <span class="menu-text">Qiime2 Applications</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#params" id="toc-params" class="nav-link active" data-scroll-target="#params">Params</a></li>
+  <li><a href="#threads" id="toc-threads" class="nav-link" data-scroll-target="#threads">Threads</a>
+  <ul class="collapse">
+  <li><a href="#why-would-i-ever-do-it-this-way" id="toc-why-would-i-ever-do-it-this-way" class="nav-link" data-scroll-target="#why-would-i-ever-do-it-this-way">Why would I ever do it this way?</a></li>
+  </ul></li>
+  <li><a href="#conda-environments" id="toc-conda-environments" class="nav-link" data-scroll-target="#conda-environments">Conda environments</a>
+  <ul class="collapse">
+  <li><a href="#using-environment-name-or-path-simplest-but-not-recommended" id="toc-using-environment-name-or-path-simplest-but-not-recommended" class="nav-link" data-scroll-target="#using-environment-name-or-path-simplest-but-not-recommended">Using environment name or path (simplest but not recommended)</a></li>
+  <li><a href="#using-conda-environment-yaml-recommended" id="toc-using-conda-environment-yaml-recommended" class="nav-link" data-scroll-target="#using-conda-environment-yaml-recommended">Using conda environment YAML (recommended)</a>
+  <ul class="collapse">
+  <li><a href="#creating-yamls-from-existing-environments" id="toc-creating-yamls-from-existing-environments" class="nav-link" data-scroll-target="#creating-yamls-from-existing-environments">Creating YAMLs from existing environments</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#resources" id="toc-resources" class="nav-link" data-scroll-target="#resources">Resources</a>
+  <ul class="collapse">
+  <li><a href="#limiting-resources" id="toc-limiting-resources" class="nav-link" data-scroll-target="#limiting-resources">Limiting resources</a></li>
+  <li><a href="#snakemake-doesnt-monitor-resource-usage" id="toc-snakemake-doesnt-monitor-resource-usage" class="nav-link" data-scroll-target="#snakemake-doesnt-monitor-resource-usage">Snakemake doesn’t monitor resource usage</a></li>
+  <li><a href="#resources-are-most-useful-for-cluster-integration" id="toc-resources-are-most-useful-for-cluster-integration" class="nav-link" data-scroll-target="#resources-are-most-useful-for-cluster-integration">Resources are most useful for cluster integration</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Elaborating rules</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="params" class="level1">
+<h1>Params</h1>
+<p>We’ve covered how to provide inputs and outputs for a rule, but we can actually provide anything we want as parameters of a rule. These rule params can be accessed with curly brackets just like we access inputs and outputs. For example:</p>
+<pre class="snakemake"><code>rule count_ducks:
+    output: 
+        "ducks_file.txt"
+    params:
+        ducks=2,
+        eggs=4
+    shell:
+        """
+        echo "The {params.ducks} ducks laid {params.eggs} eggs!" &gt; {output}
+        """</code></pre>
+<p>This would print “The 2 ducks laid 4 eggs!” to the output file, filling the params into the shell command, like it does with <code>{output}</code>.</p>
+</section>
+<section id="threads" class="level1">
+<h1>Threads</h1>
+<p>For parallelizable jobs, we can pass threads directly to rules as well. In your rule, you can then access your number of threads with curly brackets (yet again). Here is an example (assuming we have 8 separate locations to count ducks at):</p>
+<pre class="snakemake"><code>rule count_ducks_in_parallel:
+    output: 
+        "ducks_file.txt"
+    threads: 8
+    shell:
+        """
+        count_ducks_in_parallel.py --threads {threads} &gt; {output}
+        """</code></pre>
+<section id="why-would-i-ever-do-it-this-way" class="level2">
+<h2 class="anchored" data-anchor-id="why-would-i-ever-do-it-this-way">Why would I ever do it this way?</h2>
+<p>You may be wondering, “can’t I just hard code this in the shell command?” You absolutely could. It would even save you a few lines of code in these examples.</p>
+<p>However, providing params and threads as components of the rule provides two main benefits:</p>
+<ol type="1">
+<li>It allows us to also start drawing these variables from config files, which we’ll get into on the next page.</li>
+<li>It increases readability. You no longer need to sift through your code to figure out which exact parameter you provided; this way, you can look at the rule (or ideally your config file), and it should jump out at you.</li>
+</ol>
+</section>
+</section>
+<section id="conda-environments" class="level1">
+<h1>Conda environments</h1>
+<p>A similar syntax can be used to specify conda environments for each rule. You can pass a conda environment in one of three ways:</p>
+<ol type="1">
+<li><code>conda: "name_of_environment"</code></li>
+<li><code>conda: "path/to/environment"</code></li>
+<li><code>conda: "environment_specs.yaml"</code>, where the <code>.yaml</code> file contains the requirements for setting up a conda environment.</li>
+</ol>
+<p>When passing conda environments for rules, if you provide the flag <code>--use-conda</code> when running Snakemake (e.g., <code>snakemake --cores 1 --use-conda</code>), Snakemake will run the specified rules in that specific conda environment.</p>
+<section id="using-environment-name-or-path-simplest-but-not-recommended" class="level2">
+<h2 class="anchored" data-anchor-id="using-environment-name-or-path-simplest-but-not-recommended">Using environment name or path (simplest but not recommended)</h2>
+<p>If you have already built the conda environment that you want to use, you can provide either the name or filepath for that directory. Sometimes, filepaths are generally more robust than names, but neither are particularly portable across machines.</p>
+<p>The below output from <code>conda env list</code> shows the possibility of four environments that could me passed to snakemake.</p>
+<pre><code>conda env list
+# conda environments:
+#
+base                     /Users/&lt;username&gt;/mambaforge
+HoMi                     /Users/&lt;username&gt;/mambaforge/envs/HoMi
+                         /Users/&lt;username&gt;/anaconda3/envs/Unnamed_env</code></pre>
+<p>From these environments, we could pass any of the following to a rule:</p>
+<ul>
+<li><code>conda: "base"</code> OR <code>conda: "/Users/&lt;username&gt;/mambaforge"</code></li>
+<li><code>conda: "HoMi"</code> OR <code>conda: "/Users/&lt;username&gt;/mambaforge/envs/HoMi"</code></li>
+<li><code>conda: "/Users/&lt;username&gt;/anaconda3/envs/Unnamed_env"</code>. There is no name version of this environment.</li>
+</ul>
+<p>For the HoMi environment, this could look like such:</p>
+<pre class="snakemake"><code>
+rule run_HoMi:
+   output:
+       "HoMi.out"
+   conda: "HoMi" # or conda: "/Users/&lt;username&gt;/mambaforge/envs/HoMi"
+   shell:
+       """
+       HoMi.py -o {output}
+       """</code></pre>
+<p>Not all environments can be accessed by name, which can occur if conda settings have changed. For example, changing from using anaconda to mambaforge could cause conda to stop recognizing names for the anaconda environments. Due to this, I recommend passing conda environment paths instead of names. However, the YAML approach is more robust and portable, so I’d recommend that over either names or filepaths.</p>
+</section>
+<section id="using-conda-environment-yaml-recommended" class="level2">
+<h2 class="anchored" data-anchor-id="using-conda-environment-yaml-recommended">Using conda environment YAML (recommended)</h2>
+<p>Here is an example of the conda environment yaml syntax:</p>
+<pre class="snakemake"><code>rule run_fastqc:
+  input:
+    "{sample}.trimmed.{read}.fq"
+  output:
+    "{sample}.trimmed.{read}_fastqc.zip"
+  conda: "conda_envs/fastqc.yaml"
+  shell:
+    """
+    fastqc {input} -o .
+    """</code></pre>
+<p>In this case, <code>conda_envs/fastqc.yaml</code> should be a <code>.yaml</code> formatted file with the conda environment’s dependencies. Here is an example:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> fastqc_environment</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">channels</span><span class="kw">:</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> biobakery</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> conda-forge</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> bioconda</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> defaults</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dependencies</span><span class="kw">:</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> multiqc</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> fastqc</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>When provided an environment YAML, Snakemake will create it in the directory <code>.snakemake/conda/$hash</code>, where <code>$hash</code> is a hash that Snakemake has given the conda environment. I recommend modularizing your conda environments as much as possible. Having unique conda environments for distinct portions of your workflow can avoid dependency issues.</p>
+<section id="creating-yamls-from-existing-environments" class="level3">
+<h3 class="anchored" data-anchor-id="creating-yamls-from-existing-environments">Creating YAMLs from existing environments</h3>
+<p>You can easily create <code>.yaml</code> files for existing environments by using the command <code>conda env export -n &lt;env_name&gt; --from-history &gt; &lt;env_name&gt;.yaml</code>, then by manually adding any packages installed via pip. Without the <code>--from-history</code> flag, conda will export the exact package version hashes, which will hinder portability of the environment across different computers, as these versions are operating system specific. You can also add some version numbers to packages in these <code>.yaml</code> files, such <code>fastqc=0.12.1</code>. More information can be found <a href="https://carpentries-incubator.github.io/introduction-to-conda-for-data-scientists/04-sharing-environments/index.html">here</a>.</p>
+</section>
+</section>
+</section>
+<section id="resources" class="level1">
+<h1>Resources</h1>
+<p>Another way you can elaborate on rules is through specifying resource requirements. Specifying resources has a similar syntax to specifying params, where resources are provided as a subsection of the rule. This isn’t always useful on a personal computer, but it starts to become very important when we’re working on a computer cluster. Here is an example:</p>
+<pre class="snakemake"><code>rule run_fastqc:
+  input:
+    "{sample}.trimmed.{read}.fq"
+  output:
+    "{sample}.trimmed.{read}_fastqc.zip"
+  conda: "conda_envs/fastqc.yaml"
+  resources:
+    partition="short",
+    mem_mb=int(2*1000), # MB, or 2 GB
+    runtime=int(2*60), # min, or 2 hours
+    slurm="&lt;slurm extra parameters&gt;"
+  threads: 1
+  shell:
+    """
+    fastqc {input} -o .
+    """</code></pre>
+<section id="limiting-resources" class="level2">
+<h2 class="anchored" data-anchor-id="limiting-resources">Limiting resources</h2>
+<p>When running Snakemake locally, specifying resources can be useful for making sure Snakemake doesn’t overrun the resources available on your computer. On the command line, a flag for maximum resources used can be passed. For example, if you wanted to limit Snakemake to 8 GB total memory, you could run it using the command <code>snakemake --cores 1 --resources mem_mb=8000</code>. If you needed to run the <code>run_fastq</code> rule above for 50 samples but passed 8 GB as the max memory footprint, Snakemake would make sure no more than 4 samples were running at a time.</p>
+</section>
+<section id="snakemake-doesnt-monitor-resource-usage" class="level2">
+<h2 class="anchored" data-anchor-id="snakemake-doesnt-monitor-resource-usage">Snakemake doesn’t monitor resource usage</h2>
+<p>Snakemake does not monitor real-time resource useage but instead just goes off of the benchmarks you provide it. If you say a rule needs 2 GB memory, but it actually uses 10 GB, Snakemake will not know or adjust how it is scheduling the rules. More information on resources can be found <a href="https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#resources">here</a>.</p>
+</section>
+<section id="resources-are-most-useful-for-cluster-integration" class="level2">
+<h2 class="anchored" data-anchor-id="resources-are-most-useful-for-cluster-integration">Resources are most useful for cluster integration</h2>
+<p>Resources specifications become very useful when integrating Snakemake with a compute cluster with some sort of resource management system like Slurm. This is discussed in <a href="Cluster-friendly-Snakemake.html">Cluster-friendly Snakemake</a>, but a Slurm profile for Snakemake can look at the resource requirements for each rule and request that many resources when submitting batch job requests on the cluster.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
