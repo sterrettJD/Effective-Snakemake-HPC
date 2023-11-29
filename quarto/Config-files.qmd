@@ -62,4 +62,31 @@ rule specific_rule:
 ```
 
 ### Safely handling config params
+The way that the config dictionary's values are accessed above works, but it isn't necessarily the most user-friendly way to access the values. I'm not saying this has happened to me, but if a jealous ex-lover sneaks into your house on a Tuesday night and deletes parameters out of your config file, the previously shown dictionary value accession method will result in errors in your Snakemake pipeline.
 
+As such, it can be better to use the `dict.get()` syntax, or even to write helper functions to sanitize your config. With `dict.get()`, you can set default values. Using `config.get("specific_rule_threads", default=1)` would look for `specific_rule_threads` in your config, but if it doesn't exist, Snakemake would default to using 1 thread for this rule. In contrast, `config["specific_rule_threads"]` would raise a `KeyError` if `specific_rule_threads` is not in the config.
+
+You may imagine some cases where defaulting to a set value could be preferable. For example, if you want a rule to default to using 1 thread, unless a user specificies otherwise, the `get()` syntax could be great. However, if the entire pipeline should error if a user doesn't provide an input filepath, the `get()` syntax may not be the ideal solution. If a pipeline should error if a user doesn't provide a certain parameter in the config, this is best handled with a helper function to sanitize. Below is an example:
+
+```{python}
+#| eval: false
+
+def check_keys_exist(config, keys):
+    """
+    Parameters:
+    - dictionary (dict): The config dictionary to check.
+    - keys (set): The set of keys to check for.
+
+    Returns:
+    - bool: True if all keys are present
+    
+    If any key is missing, a specific ValueError will be raised
+    """
+    for key in keys:
+        if key not in config:
+            raise ValueError(f"{key} is missing from your config file. Please ensure this parameter is present")
+    
+    return True
+```
+
+Additionally, you may need to check certain aspects of the config parameters. Did the user add quotes around the values? Are there underscores in a parameter that should have dashes instead. These are things to think about if other people will be using your Snakemake pipeline.
