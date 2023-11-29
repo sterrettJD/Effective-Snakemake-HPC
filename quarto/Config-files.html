@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Effective Snakemake on Computer Clusters - About Snakemake</title>
+<title>Effective Snakemake on Computer Clusters - Using Config Files</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -59,9 +93,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
-<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
-<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -156,13 +187,15 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#what-does-snakemake-do" id="toc-what-does-snakemake-do" class="nav-link active" data-scroll-target="#what-does-snakemake-do">What does Snakemake do?</a>
+  <li><a href="#what-is-a-config-file" id="toc-what-is-a-config-file" class="nav-link active" data-scroll-target="#what-is-a-config-file">What is a config file?</a></li>
+  <li><a href="#why-do-we-use-config-files" id="toc-why-do-we-use-config-files" class="nav-link" data-scroll-target="#why-do-we-use-config-files">Why do we use config files?</a></li>
+  <li><a href="#using-a-config-file" id="toc-using-a-config-file" class="nav-link" data-scroll-target="#using-a-config-file">Using a config file</a>
   <ul class="collapse">
-  <li><a href="#why-do-i-need-a-workflow-manager" id="toc-why-do-i-need-a-workflow-manager" class="nav-link" data-scroll-target="#why-do-i-need-a-workflow-manager">Why do I need a workflow manager?</a></li>
-  <li><a href="#other-attributes-that-make-snakemake-nice" id="toc-other-attributes-that-make-snakemake-nice" class="nav-link" data-scroll-target="#other-attributes-that-make-snakemake-nice">Other attributes that make Snakemake nice</a>
+  <li><a href="#passing-a-config-file-to-snakemake" id="toc-passing-a-config-file-to-snakemake" class="nav-link" data-scroll-target="#passing-a-config-file-to-snakemake">Passing a config file to Snakemake</a></li>
+  <li><a href="#format" id="toc-format" class="nav-link" data-scroll-target="#format">Format</a></li>
+  <li><a href="#snakefile" id="toc-snakefile" class="nav-link" data-scroll-target="#snakefile">Snakefile</a>
   <ul class="collapse">
-  <li><a href="#software-environment-management" id="toc-software-environment-management" class="nav-link" data-scroll-target="#software-environment-management">Software environment management</a></li>
-  <li><a href="#parameter-space-exploration" id="toc-parameter-space-exploration" class="nav-link" data-scroll-target="#parameter-space-exploration">Parameter space exploration</a></li>
+  <li><a href="#safely-handling-config-params" id="toc-safely-handling-config-params" class="nav-link" data-scroll-target="#safely-handling-config-params">Safely handling config params</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -173,7 +206,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">About Snakemake</h1>
+<h1 class="title">Using Config Files</h1>
 </div>
 
 
@@ -188,65 +221,85 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<section id="what-does-snakemake-do" class="level1">
-<h1>What does Snakemake do?</h1>
-<p><a href="https://snakemake.github.io/">Snakemake</a> is a workflow management tool. That’s fancy words for “it makes your life easier when you have lots of different compute jobs to run.”</p>
-<p>At a very surface level, Snakemake looks for the output files you need, and if they aren’t there, it figures out all the steps that need to be run in order to get those files.</p>
-<p>Consider the following example. If snakemake can’t find <code>output file</code>, it will run <code>process data</code> on the <code>input data</code>.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<div>
-<pre class="mermaid mermaid-js">flowchart LR
-  B[process data] --&gt; C(output file)
-  A(input data) --&gt; B[process data]
-  
-</pre>
-</div>
-</div>
-</div>
-</div>
-<section id="why-do-i-need-a-workflow-manager" class="level2">
-<h2 class="anchored" data-anchor-id="why-do-i-need-a-workflow-manager">Why do I need a workflow manager?</h2>
-<p>Sounds pretty simple, right? You might be thinking “I could do that, why do I need Snakemake?”</p>
-<p>To answer that, Snakemake becomes more useful as (1) The number of steps increases, and (2) the number of times you have to run each step increases. Consider the following analysis, where you have 4 samples, and 2 steps for each sample.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<div>
-<pre class="mermaid mermaid-js">flowchart LR
-  B2[step 2] --&gt; C(sample 1 output)
-  B1[step 1] --&gt; B2[step 2]
-  A(sample 1 input) --&gt; B1[step 1]
-
-  E2[step 2] --&gt; F(sample 2 output)
-  E1[step 1] --&gt; E2[step 2]
-  D(sample 2 input) --&gt; E1[step 1]
-  
-  H2[step 2] --&gt; I(sample 3 output)
-  H1[step 1] --&gt; H2[step 2]
-  G(sample 3 input) --&gt; H1[step 1]
-
-  K2[step 2] --&gt; L(sample 4 output)
-  K1[step 1] --&gt; K2[step 2]
-  J(sample 4 input) --&gt; K1[step 1]
-</pre>
-</div>
-</div>
-</div>
-</div>
-<p>This is going to require more of your <strong>personal</strong> time to run, compared to the first example, and Snakemake may be more useful. For example, if each step takes 2-4 hours, you’d have to check the output after 4 hours and run the next step, but Snakemake can automatically start running step 1 for each sample once step 2 is done.</p>
-<p>More realistically, think about a research study that generates metagenomic sequencing data, where you may have 100 samples, that each need to be run through 10 steps. As things scale up, workflow management just makes your life easier.</p>
+<section id="what-is-a-config-file" class="level1">
+<h1>What is a config file?</h1>
+<p>Config files in Snakemake workflows are used to store and manage configuration parameters separately from the workflow script. Typically written in YAML format, these files contain key-value pairs representing various parameters such as file paths, resource requirements, and other settings that control the behavior of the workflow.</p>
 </section>
-<section id="other-attributes-that-make-snakemake-nice" class="level2">
-<h2 class="anchored" data-anchor-id="other-attributes-that-make-snakemake-nice">Other attributes that make Snakemake nice</h2>
-<section id="software-environment-management" class="level3">
-<h3 class="anchored" data-anchor-id="software-environment-management">Software environment management</h3>
-<p>Snakemake can also manage software environments. This comes in useful for conflicting software requirements. For example, imagine <code>step 1</code> needs Python 3.9, but <code>step 2</code> only works with Python 3.5. Snakemake can build separate Conda environments for each step, and it provides a framework to keep track of these software environments (aiding reproducibility). If you’ve managed these Conda environments, you can send your snakefile to someone else, and Snakemake will build the software environments for them, so they don’t have to worry about it!</p>
+<section id="why-do-we-use-config-files" class="level1">
+<h1>Why do we use config files?</h1>
+<p>Config files in Snakemake help us separate configuration details from the workflow script. This separation enhances portability, allowing workflows to be easily adapted to different environments. Config files contribute to reproducibility by capturing essential parameters, while also offering flexibility, maintainability, and a means to secure sensitive information such as file paths.</p>
+<p>Config files also enhance workflow readability and modifiability. For example, if you’d like to change the parameters for trimming sequencing reads, you can find those parameters more easily in the config file, compared to searching through the snakefile for the parameters.</p>
 </section>
-<section id="parameter-space-exploration" class="level3">
-<h3 class="anchored" data-anchor-id="parameter-space-exploration">Parameter space exploration</h3>
-<p>Snakemake is also nice for parameter space exploration. Imagine that you want to try passing different parameters to step 1. You can make these changes, and snakemake will rerun all downstream steps. There are also ways to easily expand the “parameter space” of your analyses via Snakemake. Sticking with the metagenomics example, you may want to see if trimming your sequencing data at multiple different base pair positions (0, 5, 10, 15, and 20), it’s not too difficult to extend Snakemake to do this.</p>
+<section id="using-a-config-file" class="level1">
+<h1>Using a config file</h1>
+<section id="passing-a-config-file-to-snakemake" class="level2">
+<h2 class="anchored" data-anchor-id="passing-a-config-file-to-snakemake">Passing a config file to Snakemake</h2>
+<p>To run Snakemake with a config file, pass it after the flag <code>--config</code> in your Snakemake command, as such: <code>snakemake --cores 1 --config config.yaml</code>.</p>
+</section>
+<section id="format" class="level2">
+<h2 class="anchored" data-anchor-id="format">Format</h2>
+<p>Config files should be YAML-formatted. Here is an example:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Input data file</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">input_file</span><span class="kw">:</span><span class="at"> data/input.txt</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Output directory</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">output_file</span><span class="kw">:</span><span class="at"> data/processed_file.txt</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Parameters for a specific rule</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">specific_rule_params</span><span class="kw">:</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">param1</span><span class="kw">:</span><span class="at"> value1</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">param2</span><span class="kw">:</span><span class="at"> value2</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of threads to use for a specific rule</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">specific_rule_threads</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="snakefile" class="level2">
+<h2 class="anchored" data-anchor-id="snakefile">Snakefile</h2>
+<p>If the config filepath is passed to Snakemake, it will automatically be read into your snakefile as a dictionary object named <code>config</code>. The below example shows how you can use this config dictionary in your rules. I recommend not trying to access exact components of the config file inside your <code>shell</code> command (or <code>run</code> command), but instead making those components params that can be accessed more traditionally.</p>
+<pre class="snakemake"><code>rule all:
+    input:
+        config["output_file"]
+
+# Rule to process the input file
+rule specific_rule:
+    input:
+        config["input_file"]
+    output:
+        config["output_file"]
+    threads: config["specific_rule_threads"]
+    params:
+        param1=config["specific_rule_params"]["param1"],
+        param2=config["specific_rule_params"]["param2"]
+    shell:
+        """
+        cp {input} {output}
+        echo {params.param1} &gt;&gt; {output}
+        echo {params.param2} &gt;&gt; {output}
+        """</code></pre>
+<section id="safely-handling-config-params" class="level3">
+<h3 class="anchored" data-anchor-id="safely-handling-config-params">Safely handling config params</h3>
+<p>The way that the config dictionary’s values are accessed above works, but it isn’t necessarily the most user-friendly way to access the values. I’m not saying this has happened to me, but if a jealous ex-lover sneaks into your house on a Tuesday night and deletes parameters out of your config file, the previously shown dictionary value accession method will result in errors in your Snakemake pipeline. For someone unfamiliar with the pipeline, it may be very difficult to track down that these errors are coming from a missing parameter in the config file.</p>
+<p>In some cases, it can be better to use the <code>dict.get()</code> syntax, or even to write helper functions to sanitize your config. With <code>dict.get()</code>, you can set default values. Using <code>config.get("specific_rule_threads", default=1)</code> would look for <code>specific_rule_threads</code> in your config, but if it doesn’t exist, Snakemake would default to using 1 thread for this rule. In contrast, <code>config["specific_rule_threads"]</code> would raise a <code>KeyError</code> if <code>specific_rule_threads</code> is not in the config.</p>
+<p>You may imagine some cases where defaulting to a set value could be preferable. For example, if you want a rule to default to using 1 thread, unless a user specificies otherwise, the <code>get()</code> syntax could be great. However, if the entire pipeline should error if a user doesn’t provide an input filepath, the <code>get()</code> syntax may not be the ideal solution. If a pipeline should error if a user doesn’t provide a certain parameter in the config, this is best handled with an informative helper function to sanitize. Below is an simple example:</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> check_keys_exist(config, keys):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters:</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">    - dictionary (dict): The config dictionary to check.</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">    - keys (set): The set of keys to check for.</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">    - bool: True if all keys are present</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">    If any key is missing, a specific ValueError will be raised</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> key <span class="kw">in</span> keys:</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> key <span class="kw">not</span> <span class="kw">in</span> config:</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="ss">f"</span><span class="sc">{</span>key<span class="sc">}</span><span class="ss"> is missing from your config file. Please ensure this parameter is present"</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">True</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Additionally, you may need to check certain aspects of the config parameters. Did the user add quotes around the values? Are there underscores in a parameter that should have dashes instead. These are things to think about if other people will be using your Snakemake pipeline.</p>
 
 
 </section>
