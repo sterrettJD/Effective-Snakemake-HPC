@@ -40,10 +40,10 @@ sbatch trim_reads.sbatch
 ## Using Snakemake to automate batch job submission
 This works well for single jobs, but again, when things start to scale up (50 samples, 10 steps per sample, etc..), this can become cumbersome. 
 
-### Story time
+### Dr. Cluster or: How I learned to stop worrying and love the workflow manager
 When I was new to working on clusters, I found myself writing python scripts to loop through each of my samples, find their files, then run sbatch scripts that had to parse/sanitize multiple parameters. I certainly could have done this more simply, but it quickly snowballed into a 50-150 line python script with a >25 line sbatch script per step, leading to a >>1000 line codebase for a project with just a few processing steps. The last straw was when I needed to go back and run step 1 with new parameters, meaning I had to manually rerun every following step (after waiting for all samples to finish each step).
 
-Using Snakemake, to manage I was able to reduce this codebase by ~70% and reduce my manual input by ~50%. To quote Casey Martin, "Compute flops are cheap and nearly unlimited at our level; human flops are expensive and limited," so we need to prioritize efficiency in our human flops, using tools like Snakemake.
+Using Snakemake, to manage I was able to reduce this codebase by ~70% and reduce my manual input by ~50%. To quote Casey Martin (who claims he was quoting someone much smarter than himself), "Compute flops are cheap and nearly unlimited at our level; human flops are expensive and limited," so we need to prioritize efficiency in our human flops, using tools like Snakemake.
 
 ### Snakemake + Slurm
 My favorite part of using Snakemake has been that once a Slurm profile is set up, it will handle all of the `sbatch` job submission for you. This "profile" is really just a little tool that creates the `.sbatch` script, submits it, logs output/error, and monitors completion. In your Snakefile, you can specify resource requirements and conda environment, such that the previous script would look like this:
