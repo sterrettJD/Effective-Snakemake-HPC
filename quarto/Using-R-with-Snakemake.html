@@ -261,6 +261,75 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="running-r-scripts-in-snakemake" class="level1">
 <h1>Running R scripts in Snakemake</h1>
+<p>An example workflow using R scripts:</p>
+<pre class="snakemake"><code>rule all:
+    input:
+       "faith_plot.pdf",
+       "faith_stats.tsv" 
+
+
+rule running_r_script:
+    input:
+        "metadata_file.tsv",
+        "faith_pd.tsv"
+    output:
+        "faith_plot.pdf",
+        "faith_stats.tsv"
+    conda:
+        "r_env"
+    shell:
+        """
+        Rscript faith_pd.R 
+        """</code></pre>
+<p>The workflow looks pretty straightforward, right? Now let’s take a peek at what the inside of the <code>faith_pd.R</code> script looks like:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">## this is the most important thing to specify at the beginning of your script</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="do">## needed libraries</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="do">## input file paths </span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>metadata_FP <span class="ot">&lt;-</span> <span class="st">'metadata_file.tsv'</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>faith_pd_FP <span class="ot">&lt;-</span> <span class="st">'faith_pd.tsv'</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="do">## reading in metadata and faith's pd .tsvs</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>metadata <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(metadata_FP)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>faith_pd <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(faith_pd_FP)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>metadata <span class="sc">%&gt;%</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(faith_pd, <span class="at">by =</span> <span class="st">'sampleid'</span>) <span class="ot">-&gt;</span> combined_faith_table</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="do">## creating plot</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>combined_faith_table <span class="sc">%&gt;%</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> sample_date, <span class="at">y =</span> faith_pd)) <span class="sc">+</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(<span class="at">group =</span> sample_date)) <span class="sc">+</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>, <span class="at">height =</span> <span class="dv">0</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_smooth</span>(<span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Day'</span>,</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>            <span class="at">y =</span> <span class="st">"Faith's PD"</span>,</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>            <span class="at">title =</span> <span class="st">"Faith's PD Over Time"</span>) <span class="ot">-&gt;</span> faith_pd_plot</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="do">## running stats on my faith's pd results by sample date</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>combined_faith_table <span class="sc">%&gt;%</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">do</span>(<span class="fu">tidy</span>(<span class="fu">kruskal.test</span>(faith_pd <span class="sc">~</span> sample_date,</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> .))) <span class="ot">-&gt;</span> kruskal_test</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>combined_faith_table <span class="sc">%&gt;%</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dunn_test</span>(faith_pd <span class="sc">~</span> sample_date,</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>              <span class="at">p.adjust.method =</span> <span class="st">'BH'</span>,</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> .) <span class="ot">-&gt;</span> dunn_test</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="do">## saving my outputs</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">'faith_plot.pdf'</span>,</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>       <span class="at">plot =</span> faith_pd_plot,</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">7</span>,</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>       <span class="at">height =</span> <span class="dv">5</span>)</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="fu">write_tsv</span>(dunn_test,</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>          <span class="st">'faith_stats.tsv'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>It looks like a typical R script and that’s all it needs to look like. The most important piece is including all needed libraries (that you installed into your R-specific conda environment) to run that script as well as matching your input and output file paths between your script and Snakemake rule. It can be a bit annoying to need to edit your R scripts directly if your file paths change so you can install and utilize argparse which allows you to edit your file paths directly from the Snakemake rule. <a href="https://cran.r-project.org/web/packages/argparse/argparse.pdf">Here</a> is additional information on implimenting argparse in your R scripts and snakefile.</p>
 </section>
 <section id="running-r-markdown-scripts-in-snakemake-john" class="level1">
 <h1>Running R markdown scripts in Snakemake JOHN</h1>
