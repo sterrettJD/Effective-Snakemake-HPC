@@ -3,34 +3,48 @@ title: "Effective use of Snakemake for workflow management on high performance c
 ---
 
 # Overview
-Welcome! This is a learning resource on how to effectively use the workflow management tool Snakemake to make your life easier when processing large amounts of data on high performance compute clusters. 
+
+Welcome! This is a learning resource on how to effectively use the workflow management tool Snakemake to make your life easier when processing large amounts of data on high performance compute clusters.
 
 # Goals
 
 Hopefully, this resource will help you:
 
-1. Understand why workflow management tools are useful
-2. Create generalizable workflows with Snakemake
-3. Create reproducible workflows with Snakemake
-4. Create Snakemake workflows that run on compute clusters in an efficient manner (parallelized job submission and resource management)
+1.  Understand why workflow management tools are useful
+2.  Create generalizable workflows with Snakemake
+3.  Create reproducible workflows with Snakemake
+4.  Create Snakemake workflows that run on compute clusters in an efficient manner (parallelized job submission and resource management)
+
+
+# Getting started
+
+1. If you've never used Snakemake before, or if you don't understand what a Snakemake is or why you'd use it, start in the Snakemake Basics section, with [About Snakemake](quarto/About-Snakemake.html) and [Snakemake Essentials](quarto/Snakemake-Essentials.html).
+2. If you've used Snakemake before but don't know how to specify params and resource requirements, how to customize conda environments, or how to integrate config files with Snakemake, look toward the More Snakemake tab, with [Elaborating Rules](quarto/Elaborating-rules.html) and [Config Files](quarto/Config-files.html).
+3. If you have the Snakemake fundamentals down, check out [Cluster-friendly Snakemake](quarto/Cluster-friendly-Snakemake.html) under the Cluster Integration tab.
+
 
 # Applications to shotgun metagenomics
+
 Some examples will be focused on dealing with high-throughput sequencing data, such as metagenomics, since this is what I (and the original audience of this resource) work with on a daily basis. However, the contents and principles still apply to other data types.
 
 A primer on shotgun metagenomic data:
 
- - The [Fastq format](https://en.wikipedia.org/wiki/FASTQ_format) is how we store sequencing data. It's a (sometimes compressed) text file with the genome sequence and quality of the sequence.
- - If any of these concepts are unfamiliar to your, or if they spark an interest in working with metagenomic data: 
-   - Thomas Sharpton has written [An introduction to the analysis of shotgun metagenomic data](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4059276/), which is a nice overview of many data processing steps. 
-   - Additionally, the [Metagenomics Wiki](https://www.metagenomics.wiki/tools/short-read) explains many of the tools, as well as how to use them.
+-   The [Fastq format](https://en.wikipedia.org/wiki/FASTQ_format) is how we store sequencing data. It's a (sometimes compressed) text file with the genome sequence and quality of the sequence.
+-   If any of these concepts are unfamiliar to your, or if they spark an interest in working with metagenomic data:
+    -   Thomas Sharpton has written [An introduction to the analysis of shotgun metagenomic data](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4059276/), which is a nice overview of many data processing steps.
+    -   Additionally, the [Metagenomics Wiki](https://www.metagenomics.wiki/tools/short-read) explains many of the tools, as well as how to use them.
 
 # Applications to 16S rDNA data
-Other examples may be based on the analysis of 16S rDNA sequencing data which is commonly performed for microbiome profiling and is what the other contributor to this resource works with on a daily basis. Once again, don't fret if you've never encountered 16S rDNA data, the basic principles of Snakemake can be applied in a variety of situations. 
+
+Other examples may be based on the analysis of 16S rDNA sequencing data which is commonly performed for microbiome profiling and is what the other contributor to this resource works with on a daily basis. Once again, don't fret if you've never encountered 16S rDNA data, the basic principles of Snakemake can be applied in a variety of situations.
 
 A brief background on 16S rDNA data:
 
- - Like shotgun metagenomics, the sequencing data is stored in [Fastq format](https://en.wikipedia.org/wiki/FASTQ_format) as a compressed file.
- - These fastq.gz files are then put into microbiome profiling programs such as [Qiime2](https://qiime2.org/) or [mothur](https://mothur.org/).
+-   Like shotgun metagenomics, the sequencing data is stored in [Fastq format](https://en.wikipedia.org/wiki/FASTQ_format) as a compressed file.
+-   These fastq.gz files are then put into microbiome profiling programs such as [Qiime2](https://qiime2.org/) or [mothur](https://mothur.org/).
+
+
 
 # Contributing to this resource
+
 If you have questions or suggestions, feel free to open an issue or pull request on the [GitHub repo](https://github.com/sterrettJD/Effective-Snakemake-HPC/) for this site :)
