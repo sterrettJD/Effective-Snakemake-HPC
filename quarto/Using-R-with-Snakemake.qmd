@@ -48,5 +48,83 @@ Et viola! Your R-specific conda environment has successfully been installed!
 
 # Running R scripts in Snakemake
 
+An example workflow using R scripts:
+
+```snakemake
+rule all:
+    input:
+       "faith_plot.pdf",
+       "faith_stats.tsv" 
+
+
+rule running_r_script:
+    input:
+        "metadata_file.tsv",
+        "faith_pd.tsv"
+    output:
+        "faith_plot.pdf",
+        "faith_stats.tsv"
+    conda:
+        "r_env"
+    shell:
+        """
+        Rscript faith_pd.R 
+        """
+```
+
+The workflow looks pretty straightforward, right? Now let's take a peek at what the inside of the `faith_pd.R` script looks like:
+
+```R
+## this is the most important thing to specify at the beginning of your script
+## needed libraries
+library(ggpubr)
+library(ggplot2)
+library(magrittr)
+library(tidyverse)
+library(broom)
+
+## input file paths 
+metadata_FP <- 'metadata_file.tsv'
+faith_pd_FP <- 'faith_pd.tsv'
+
+## reading in metadata and faith's pd .tsvs
+metadata <- read_tsv(metadata_FP)
+faith_pd <- read_tsv(faith_pd_FP)
+
+metadata %>%
+    left_join(faith_pd, by = 'sampleid') -> combined_faith_table
+
+## creating plot
+combined_faith_table %>%
+    ggplot(aes(x = sample_date, y = faith_pd)) +
+        geom_boxplot(aes(group = sample_date)) +
+        geom_jitter(width = 0.1, height = 0, alpha = 0.6) +
+        geom_smooth(se = FALSE) +
+        labs(x = 'Day',
+            y = "Faith's PD",
+            title = "Faith's PD Over Time") -> faith_pd_plot
+
+## running stats on my faith's pd results by sample date
+combined_faith_table %>%
+    do(tidy(kruskal.test(faith_pd ~ sample_date,
+                         data = .))) -> kruskal_test
+
+combined_faith_table %>%
+    dunn_test(faith_pd ~ sample_date,
+              p.adjust.method = 'BH',
+              data = .) -> dunn_test
+
+## saving my outputs
+ggsave('faith_plot.pdf',
+       plot = faith_pd_plot,
+       width = 7,
+       height = 5)
+
+write_tsv(dunn_test,
+          'faith_stats.tsv')
+```
+
+It looks like a typical R script and that's all it needs to look like. The most important piece is including all needed libraries (that you installed into your R-specific conda environment) to run that script as well as matching your input and output file paths between your script and Snakemake rule. It can be a bit annoying to need to edit your R scripts directly if your file paths change so you can install and utilize argparse which allows you to edit your file paths directly from the Snakemake rule. [Here](https://cran.r-project.org/web/packages/argparse/argparse.pdf) is additional information on implimenting argparse in your R scripts and snakefile.
+
 
 # Running R markdown scripts in Snakemake JOHN 
