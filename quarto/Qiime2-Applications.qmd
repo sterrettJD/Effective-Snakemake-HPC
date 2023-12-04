@@ -76,7 +76,7 @@ rule merge_tables:
 Both Qiime2 and Snakemake are notoriously known for being picky about the little things (i.e. did you have an extra space that you forgot about after one of your commands and now you have a really unhelpful error message?) and sometimes the combination of the two can be incredibly frustrating.
 
 ## Things I've had to learn the hard way:
-1. Anytime you call a Qiime2 command that outputs a directory of files (like `qiime diversity core-metrics-phylogenetic`), Qiime and Snakemake get mad at each other because Snakemake creates the output directory before Qiime. Qiime will then give you an error about how the output directory already exists (because Snakemake created it first).
+**1. Anytime you call a Qiime2 command that outputs a directory of files (like `qiime diversity core-metrics-phylogenetic`), Qiime and Snakemake get mad at each other because Snakemake creates the output directory before Qiime. Qiime will then give you an error about how the output directory already exists (because Snakemake created it first).**
 
 Instead, you need to specify that the output you're generating in your shell is an entire directory by using `output = directory("directory_name")`. For example:
 
@@ -165,6 +165,9 @@ rule core_metrics_analysis:
         """
 ```
 
-2. Since many of the steps in a Qiime2 workflow are interactive, put each step in it's own Snakemake rule. 
+**2. Since many of the steps in a Qiime2 workflow are interactive, put each step in it's own Snakemake rule.**
 
-I originally thought that it would be more streamlined to put all of the Qiime2 workflow code into a regular bash script and to reference that in my Snakemake rules (it would certainly make my snakefile shorter). However, since many of the outputs in the Qiime2 workflow need to be referenced to inform the parameters on downstream steps, leaving each step in it's own rule allows you to easily check generated outputs and adjust subsequent parameters. This is also particularly helpful when you need to re-run your workflow (as that inevitably happens) since Snakemake will only re-run rules that have been altered or are missing outputs so the super time-consuming Qiime2 steps will only be run once. If you had everything in a bash script, it would be re-run with your workflow every time, which is a lot of time and computational power that will slow down your analysis. 
+I originally thought that it would be more streamlined to put all of the Qiime2 workflow code into a regular bash script and to reference that in my Snakemake rules (it would certainly make my snakefile shorter). However, since many of the outputs in the Qiime2 workflow need to be referenced to inform the parameters on downstream steps, leaving each step in it's own rule allows you to easily check generated outputs and adjust subsequent parameters. This is also particularly helpful when you need to re-run your workflow (as that inevitably happens) since Snakemake will only re-run rules that have been altered or are missing outputs so the super time-consuming Qiime2 steps will only be run once. If you had everything in a bash script, it would be re-run with your workflow every time, which is a lot of time and computational power that will slow down your analysis.
+
+**3. Qiime2 doesn't like to be referenced as a YAML file.**
+
