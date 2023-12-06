@@ -124,7 +124,7 @@ write_tsv(dunn_test,
           'faith_stats.tsv')
 ```
 
-It looks like a typical R script and that's all it needs to look like. The most important piece is including all needed libraries (that you installed into your R-specific conda environment) to run that script as well as matching your input and output file paths between your script and Snakemake rule. It can be a bit annoying to need to edit your R scripts directly if your file paths change so you can install and utilize argparse which allows you to edit your file paths directly from the Snakemake rule. [Here](https://cran.r-project.org/web/packages/argparse/argparse.pdf) is additional information on implimenting argparse in your R scripts and snakefile.
+It looks like a typical R script and that's all it needs to look like. The most important piece is including all needed libraries (that you installed into your R-specific conda environment) to run that script as well as matching your input and output file paths between your script and Snakemake rule. It can be a bit annoying to need to edit your R scripts if your file paths change so you can install and utilize `r-argparse` which allows you to edit your file paths directly from the Snakemake rule. [Here](https://github.com/sterrettJD/Effective-Snakemake-HPC/blob/main/examples/faith_pd_argparse.R) is an example on implimenting `r-argparse` in your R scripts and [here](https://github.com/sterrettJD/Effective-Snakemake-HPC/blob/main/examples/r_argparse.smk) is an example for it in your snakefile.
 
 
 # Running R markdown scripts in Snakemake JOHN 
