@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Elaborating-rules.html</loc>
-    <lastmod>2023-12-06T19:51:58.304Z</lastmod>
-  </url>
-  <url>
-    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Qiime2-Applications.html</loc>
-    <lastmod>2023-12-06T19:51:57.184Z</lastmod>
-  </url>
-  <url>
-    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Cluster-friendly-Snakemake.html</loc>
-    <lastmod>2023-12-06T19:51:54.208Z</lastmod>
+    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/index.html</loc>
+    <lastmod>2024-04-22T19:22:16.860Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Snakemake-Essentials.html</loc>
-    <lastmod>2023-12-06T19:51:51.196Z</lastmod>
+    <lastmod>2024-04-22T19:22:15.964Z</lastmod>
   </url>
   <url>
-    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/index.html</loc>
-    <lastmod>2023-12-06T19:51:46.960Z</lastmod>
+    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Qiime2-Applications.html</loc>
+    <lastmod>2024-04-22T19:22:13.508Z</lastmod>
   </url>
   <url>
-    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/About-Snakemake.html</loc>
-    <lastmod>2023-12-06T19:51:51.524Z</lastmod>
+    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Cluster-friendly-Snakemake.html</loc>
+    <lastmod>2024-04-22T19:22:12.516Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Config-files.html</loc>
-    <lastmod>2023-12-06T19:51:56.656Z</lastmod>
+    <lastmod>2024-04-22T19:22:09.960Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Using-R-with-Snakemake.html</loc>
-    <lastmod>2023-12-06T19:51:57.712Z</lastmod>
+    <lastmod>2024-04-22T19:22:13.008Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/About-Snakemake.html</loc>
+    <lastmod>2024-04-22T19:22:13.816Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/sterrettJD/Effective-Snakemake-HPC/quarto/Elaborating-rules.html</loc>
+    <lastmod>2024-04-22T19:22:16.552Z</lastmod>
   </url>
 </urlset>
