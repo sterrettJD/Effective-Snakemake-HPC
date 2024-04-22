@@ -8,10 +8,9 @@ Running R with Snakemake works beautifully and makes your life easier - if you'v
 ## The Issue: 
 All of your R packages (called libraries in R once installed). If you're running Snakemake locally, it will use R and its packages already installed on your computer, so there's no problem. BUT if you're running Snakemake elsewhere, such as a super computer or any other computer that isn't yours, this becomes a massive issue. 
 
-### Here are a couple ways that we've gotten around it:
-**1. Creating an R script that you run first that tells R to install all the packages that you will need. JOHN**
+## Here's a way that we've gotten around it:
 
-**2. Creating an R-specific conda environment, installing all needed packages into that environment, and referencing it in your snakefile.**
+**Creating an R-specific conda environment, installing all needed packages into that environment, and referencing it in your snakefile.**
     
 Installing your desired R packages through conda is a lot faster than if you were to install them via R (which seems semi counter-intuitive) and the process is fairly fool proof. You can set up your R environment in a `.yaml` file - similar to your other environments. For example:
 
@@ -125,6 +124,3 @@ write_tsv(dunn_test,
 ```
 
 It looks like a typical R script and that's all it needs to look like. The most important piece is including all needed libraries (that you installed into your R-specific conda environment) to run that script as well as matching your input and output file paths between your script and Snakemake rule. It can be a bit annoying to need to edit your R scripts if your file paths change so you can install and utilize `r-argparse` which allows you to edit your file paths directly from the Snakemake rule. [Here](https://github.com/sterrettJD/Effective-Snakemake-HPC/blob/main/examples/faith_pd_argparse.R) is an example on implimenting `r-argparse` in your R scripts and [here](https://github.com/sterrettJD/Effective-Snakemake-HPC/blob/main/examples/r_argparse.smk) is an example for it in your snakefile.
-
-
-# Running R markdown scripts in Snakemake JOHN 
